@@ -7,6 +7,7 @@ from src.config import AUDIO_DIR, AUDIO_SAMPLE_RATE, CHUNKS_DIR
 
 def extract_audio_from_chunks():
     AUDIO_DIR.mkdir(parents=True, exist_ok=True)
+    clear_existing_audio()
 
     chunk_files = sorted(CHUNKS_DIR.glob("chunk_*.mp4"))
 
@@ -48,3 +49,7 @@ def extract_audio_from_chunks():
             sys.exit(1)
 
     return extracted_count
+
+def clear_existing_audio():
+    for file in AUDIO_DIR.glob("chunk_*.wav"):
+        file.unlink()

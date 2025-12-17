@@ -59,11 +59,11 @@ End Goal: Local Windows application that converts long-form VODs into highlight 
 
 ## Day 4 — Audio Intensity Scoring
 
-- [ ] RMS energy calculated per chunk
-- [ ] Volume spikes detected
-- [ ] Silence handled correctly
-- [ ] Audio score normalized
-- [ ] Audio scores stored in metadata
+- [X] RMS energy calculated per chunk
+- [x] Volume spikes detected
+- [x] Silence handled correctly
+- [x] Audio score normalized
+- [x] Audio scores stored in metadata
 
 ---
 

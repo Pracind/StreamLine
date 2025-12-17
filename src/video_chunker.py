@@ -8,6 +8,8 @@ from src.config import CHUNK_DURATION_SECONDS, CHUNKS_DIR
 def chunk_video(input_video_path: str):
     CHUNKS_DIR.mkdir(parents=True, exist_ok=True)
 
+    clear_existing_chunks()
+
     chunk_pattern = str(CHUNKS_DIR / "chunk_%04d.mp4")
 
     command = [
@@ -44,3 +46,8 @@ def chunk_video(input_video_path: str):
         json.dump(metadata, f, indent=2)
 
     return metadata
+
+
+def clear_existing_chunks():
+    for file in CHUNKS_DIR.glob("chunk_*.mp4"):
+        file.unlink()

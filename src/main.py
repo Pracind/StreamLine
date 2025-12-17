@@ -6,6 +6,7 @@ from src.config import CHUNKS_DIR
 
 from src.video_chunker import chunk_video
 from src.audio_extractor import extract_audio_from_chunks
+from src.audio_rms import calculate_rms_energy, write_rms_to_metadata
 
 
 def get_input_video() -> Path:
@@ -36,3 +37,7 @@ if __name__ == "__main__":
 
     audio_count = extract_audio_from_chunks()
     print(f"Extracted audio from {audio_count} chunks.")
+
+    rms_results = calculate_rms_energy()
+    write_rms_to_metadata(rms_results)
+    print("RMS energy calculated for all chunks.")
