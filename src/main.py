@@ -16,6 +16,7 @@ from src.score_logger import log_scores_for_tuning
 from src.highlight_merger import merge_adjacent_highlights
 from src.highlight_buffer import add_buffers_to_highlights
 from src.highlight_filter import filter_short_highlights
+from src.clip_extractor import extract_highlight_clips
 
 
 
@@ -78,6 +79,10 @@ if __name__ == "__main__":
 
     final_timeline = filter_short_highlights()
     print(f"Final highlight timeline has {len(final_timeline)} clips.")
+
+    clips = extract_highlight_clips()
+    print(f"Extracted {len(clips)} highlight clips.")
+
 
 
     

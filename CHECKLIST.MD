@@ -109,10 +109,10 @@ End Goal: Local Windows application that converts long-form VODs into highlight 
 
 ## Day 9 — Clip Extraction
 
-- [ ] Highlight segments extracted with FFmpeg
-- [ ] No A/V desync
-- [ ] Sequential clip naming
-- [ ] Clips stored in data/output/clips/
+- [x] Highlight segments extracted with FFmpeg
+- [x] No A/V desync
+- [x] Sequential clip naming
+- [x] Clips stored in data/output/clips/
 
 ---
 
