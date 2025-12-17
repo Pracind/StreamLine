@@ -3,7 +3,9 @@ import sys
 
 from src.config import INPUT_DIR
 from src.config import CHUNKS_DIR
+
 from src.video_chunker import chunk_video
+from src.audio_extractor import extract_audio_from_chunks
 
 
 def get_input_video() -> Path:
@@ -31,3 +33,6 @@ if __name__ == "__main__":
 
     chunks = chunk_video(str(input_video))
     print(f"Created {len(chunks)} chunks.")
+
+    audio_count = extract_audio_from_chunks()
+    print(f"Extracted audio from {audio_count} chunks.")

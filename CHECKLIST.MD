@@ -48,12 +48,12 @@ End Goal: Local Windows application that converts long-form VODs into highlight 
 
 ## Day 3 — Audio Extraction & Normalization
 
-- [ ] Audio extracted from each chunk
-- [ ] WAV format used consistently
-- [ ] Sample rate standardized
-- [ ] Audio duration matches video chunk
-- [ ] Files stored in data/audio/
-- [ ] Extraction errors handled gracefully
+- [x] Audio extracted from each chunk
+- [x] WAV format used consistently
+- [x] Sample rate standardized
+- [x] Audio duration matches video chunk
+- [x] Files stored in data/audio/
+- [x] Extraction errors handled gracefully
 
 ---
 
