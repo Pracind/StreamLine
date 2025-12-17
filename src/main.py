@@ -2,6 +2,8 @@ from pathlib import Path
 import sys
 import argparse
 import traceback
+import os
+import psutil
 
 from src.config import INPUT_DIR, CHUNKS_DIR
 
@@ -21,6 +23,9 @@ from src.clip_extractor import extract_highlight_clips
 from src.clip_concatenator import concatenate_clips
 from src.final_encoder import encode_final_video
 from src.run_reset import reset_derived_state
+from src.logger import setup_logger
+from src.cleanup import cleanup_temporary_files
+
 
 
 TOTAL_STEPS = 14
@@ -35,7 +40,19 @@ def parse_args():
         type=Path,
         help="Path to input .mp4 video (optional)"
     )
+    
+    parser.add_argument(
+        "--resume",
+        action="store_true",
+        help="Resume from existing intermediate results"
+    )
     return parser.parse_args()
+
+
+def log_memory(logger, label: str):
+    process = psutil.Process(os.getpid())
+    mem_mb = process.memory_info().rss / (1024 * 1024)
+    logger.info(f"Memory usage [{label}]: {mem_mb:.1f} MB")
 
 
 def get_input_video(cli_input: Path | None) -> Path:
@@ -71,33 +88,47 @@ def progress(step: int, total: int, message: str):
     print(f"[{step}/{total}] {message}")
 
 
+
+
 def main():
-    print("VOD-Engine — Generating highlights")
-    reset_derived_state()
+    logger = setup_logger()
+    logger.info("VOD-Engine run started")
+
 
     args = parse_args()
     input_video = get_input_video(args.input)
+
+    print("VOD-Engine — Generating highlights")
+    reset_derived_state(args.resume)
 
     step = 1
 
     try:
         progress(step, TOTAL_STEPS, "Chunking input video")
-        chunks = chunk_video(str(input_video))
+        log_memory(logger, "before chunking")             
+        chunks = chunk_video(str(input_video), logger)
+        log_memory(logger, "after chunking")               
         print(f"  → {len(chunks)} chunks created")
         step += 1
 
         progress(step, TOTAL_STEPS, "Extracting audio from chunks")
-        audio_count = extract_audio_from_chunks()
+        log_memory(logger, "before audio extraction")     
+        audio_count = extract_audio_from_chunks(logger, args.resume)
+        log_memory(logger, "after audio extraction")      
         print(f"  → {audio_count} audio files extracted")
         step += 1
 
         progress(step, TOTAL_STEPS, "Calculating audio RMS energy")
-        rms_results = calculate_rms_energy()
+        log_memory(logger, "before RMS")                  
+        rms_results = calculate_rms_energy(logger, args.resume)
         write_rms_to_metadata(rms_results)
+        log_memory(logger, "after RMS")                    
         step += 1
 
         progress(step, TOTAL_STEPS, "Transcribing audio (Whisper)")
-        transcripts = transcribe_audio_chunks()
+        log_memory(logger, "before whisper")               
+        transcripts = transcribe_audio_chunks(logger)
+        log_memory(logger, "after whisper")               
         print(f"  → {len(transcripts)} transcripts generated")
         step += 1
 
@@ -138,25 +169,37 @@ def main():
         step += 1
 
         progress(step, TOTAL_STEPS, "Extracting highlight clips")
-        clips = extract_highlight_clips(input_video)
+        log_memory(logger, "before clip extraction")      
+        clips = extract_highlight_clips(input_video, logger, args.resume)
+        log_memory(logger, "after clip extraction")        
         print(f"  → {len(clips)} clips extracted")
         step += 1
 
         progress(step, TOTAL_STEPS, "Concatenating and encoding final video")
+        log_memory(logger, "before final encoding")        
         concatenate_clips()
         final_encoded = encode_final_video()
+        log_memory(logger, "after final encoding")        
+        cleanup_temporary_files(logger)
         step += 1
+
+
+    except KeyboardInterrupt:
+        print("\n⛔ Interrupted by user (Ctrl+C).")
+        logger.warning("Run interrupted by user (KeyboardInterrupt)")
+        sys.exit(130)
 
     except Exception as e:
         print("\n❌ ERROR: Highlight generation failed.")
         print(f"Reason: {e}")
-        print("\n--- Debug Traceback (for developer) ---")
-        traceback.print_exc()
+
+        logger.exception("Pipeline failed with exception")
+
         sys.exit(1)
 
     print("\n✅ Highlight generation complete")
     print(f"Final video: {final_encoded}")
-
+    
 
 if __name__ == "__main__":
     main()

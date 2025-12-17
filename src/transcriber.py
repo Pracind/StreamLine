@@ -11,27 +11,39 @@ from src.config import (
 )
 
 
-def transcribe_audio_chunks():
+def transcribe_audio_chunks(logger):
     TRANSCRIPTS_DIR.mkdir(parents=True, exist_ok=True)
     clear_existing_transcripts()
 
     audio_files = sorted(AUDIO_DIR.glob("chunk_*.wav"))
 
     if not audio_files:
-        raise RuntimeError("No audio files found for transcription.")
+        logger.error("No audio files found for transcription")
+        raise RuntimeError("No audio files found for transcription")
 
+    total = len(audio_files)
+    logger.info(f"Loading Whisper model: {WHISPER_MODEL_NAME}")
     model = whisper.load_model(WHISPER_MODEL_NAME)
 
     results = {}
 
-    for audio_path in audio_files:
+    logger.info(f"Starting transcription for {total} audio files")
+
+    for idx, audio_path in enumerate(audio_files, start=1):
         transcript_path = TRANSCRIPTS_DIR / f"{audio_path.stem}.json"
 
-        # Cache: skip if already transcribed
+        # Cache hit
         if transcript_path.exists():
+            logger.info(
+                f"Whisper [{idx}/{total}] cache hit: {audio_path.name}"
+            )
             with open(transcript_path, "r", encoding="utf-8") as f:
                 results[audio_path.stem] = json.load(f)
             continue
+
+        logger.info(
+            f"Whisper [{idx}/{total}] transcribing {audio_path.name}"
+        )
 
         try:
             result = model.transcribe(
@@ -39,9 +51,12 @@ def transcribe_audio_chunks():
                 fp16=False,
             )
         except Exception as e:
-            print(f"ERROR: Transcription failed for {audio_path.name}")
-            print(str(e))
-            raise SystemExit(1)
+            logger.exception(
+                f"Transcription failed for {audio_path.name}"
+            )
+            raise RuntimeError(
+                f"Transcription failed for {audio_path.name}"
+            ) from e
 
         transcript_data = {
             "text": result.get("text", "").strip(),
@@ -53,6 +68,8 @@ def transcribe_audio_chunks():
             json.dump(transcript_data, f, indent=2)
 
         results[audio_path.stem] = transcript_data
+
+    logger.info("Transcription completed successfully")
 
     return results
 

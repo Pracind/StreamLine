@@ -9,11 +9,13 @@ DERIVED_DIRS = [
     DATA_DIR / "audio",
     DATA_DIR / "highlights",
     DATA_DIR / "output",
-    DATA_DIR / "logs",
 ]
 
 
-def reset_derived_state():
+def reset_derived_state(resume: bool):
+    if resume:
+        return
+
     for path in DERIVED_DIRS:
         if path.exists():
             shutil.rmtree(path)

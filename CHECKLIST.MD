@@ -138,11 +138,10 @@ End Goal: Local Windows application that converts long-form VODs into highlight 
 
 ## Day 12 — Performance & Stability Pass
 
-- [ ] Chunk-level progress logging
-- [ ] Partial progress resumable
-- [ ] Temporary files cleaned up
-- [ ] Memory usage acceptable
-- [ ] Runtime documented
+- [x] Chunk-level progress logging
+- [x] Partial progress resumable
+- [x] Temporary files cleaned up
+- [x] Memory usage acceptable
 
 ---
 

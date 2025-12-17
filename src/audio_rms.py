@@ -7,24 +7,55 @@ import soundfile as sf
 from src.config import AUDIO_DIR, CHUNKS_DIR, SPIKE_THRESHOLD, SILENCE_RMS_THRESHOLD
 
 
-def calculate_rms_energy():
+def calculate_rms_energy(logger, resume: bool):
     audio_files = sorted(AUDIO_DIR.glob("chunk_*.wav"))
 
     if not audio_files:
-        raise RuntimeError("No audio files found for RMS calculation.")
+        logger.error("No audio files found for RMS calculation")
+        raise RuntimeError("No audio files found for RMS calculation")
 
+    existing_rms = {}
+
+    metadata_path = CHUNKS_DIR / "chunks.json"
+    if resume and metadata_path.exists():
+        with open(metadata_path, "r", encoding="utf-8") as f:
+            metadata = json.load(f)
+            for entry in metadata:
+                if "audio_rms" in entry:
+                    existing_rms[Path(entry["file"]).stem] = entry["audio_rms"]
+
+    total = len(audio_files)
     rms_results = {}
 
-    for audio_path in audio_files:
-        audio_data, sample_rate = sf.read(audio_path)
+    for idx, audio_path in enumerate(audio_files, start=1):
+        stem = audio_path.stem
 
-        # Ensure mono (safety)
-        if audio_data.ndim > 1:
-            audio_data = np.mean(audio_data, axis=1)
+        # ✅ RESUME LOGIC
+        if resume and stem in existing_rms:
+            logger.info(
+                f"RMS [{idx}/{total}] cache hit: {audio_path.name}"
+            )
+            rms_results[stem] = existing_rms[stem]
+            continue
 
-        rms = np.sqrt(np.mean(np.square(audio_data)))
+        logger.info(
+            f"RMS [{idx}/{total}] calculating {audio_path.name}"
+        )
 
-        rms_results[audio_path.stem] = float(rms)
+        try:
+            audio_data, _ = sf.read(audio_path)
+
+            if audio_data.ndim > 1:
+                audio_data = np.mean(audio_data, axis=1)
+
+            rms = np.sqrt(np.mean(np.square(audio_data)))
+            rms_results[stem] = float(rms)
+
+        except Exception as e:
+            logger.exception(f"Failed RMS calculation for {audio_path.name}")
+            raise RuntimeError(
+                f"RMS calculation failed for {audio_path.name}"
+            ) from e
 
     return rms_results
 
