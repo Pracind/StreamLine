@@ -20,7 +20,6 @@ def transcribe_audio_chunks():
     if not audio_files:
         raise RuntimeError("No audio files found for transcription.")
 
-    print(f"Loading Whisper model: {WHISPER_MODEL_NAME}")
     model = whisper.load_model(WHISPER_MODEL_NAME)
 
     results = {}
@@ -33,8 +32,6 @@ def transcribe_audio_chunks():
             with open(transcript_path, "r", encoding="utf-8") as f:
                 results[audio_path.stem] = json.load(f)
             continue
-
-        print(f"Transcribing {audio_path.name}...")
 
         try:
             result = model.transcribe(

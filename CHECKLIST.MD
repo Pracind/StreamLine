@@ -128,11 +128,11 @@ End Goal: Local Windows application that converts long-form VODs into highlight 
 
 ## Day 11 — CLI Interface
 
-- [ ] Single command execution supported
-- [ ] Input path configurable
-- [ ] Progress feedback shown
-- [ ] Errors surfaced cleanly
-- [ ] Repeat runs supported
+- [x] Single command execution supported
+- [x] Input path configurable
+- [x] Progress feedback shown
+- [x] Errors surfaced cleanly
+- [x] Repeat runs supported
 
 ---
 
