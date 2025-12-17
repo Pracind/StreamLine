@@ -10,7 +10,9 @@ from src.audio_rms import calculate_rms_energy, write_rms_to_metadata
 from src.transcriber import transcribe_audio_chunks
 from src.text_features import count_keyword_hits_per_chunk
 from src.score_merger import merge_text_scores_into_chunks
-
+from src.scoring import apply_final_scores_to_chunks
+from src.highlight_selector import flag_highlight_chunks
+from src.score_logger import log_scores_for_tuning
 
 def get_input_video() -> Path:
     if not INPUT_DIR.exists():
@@ -53,3 +55,14 @@ if __name__ == "__main__":
 
     merge_text_scores_into_chunks()
     print("Text scores merged into chunk metadata.")
+
+    apply_final_scores_to_chunks()
+    print("Final scores computed for all chunks.")
+
+    highlight_count = flag_highlight_chunks()
+    print(f"Flagged {highlight_count} highlight chunks.")
+
+    logged = log_scores_for_tuning()
+    print(f"Logged scores for {logged} chunks.")
+
+    

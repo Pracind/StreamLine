@@ -7,7 +7,7 @@ CHUNKS_DIR = DATA_DIR / "chunks"
 AUDIO_DIR = DATA_DIR / "audio"
 
 # Chunking
-CHUNK_DURATION_SECONDS = 5
+CHUNK_DURATION_SECONDS = 60
 AUDIO_SAMPLE_RATE = 16000
 
 # Audio spike detection
@@ -17,3 +17,10 @@ SILENCE_RMS_THRESHOLD = 1e-4
 # Whisper transcription
 WHISPER_MODEL_NAME = "base"
 TRANSCRIPTS_DIR = DATA_DIR / "transcripts"
+
+# Scoring weights (Phase 1)
+AUDIO_WEIGHT = 0.7
+TEXT_WEIGHT = 0.3
+
+# Highlight selection
+HIGHLIGHT_THRESHOLD = 0.65

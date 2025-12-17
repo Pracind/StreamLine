@@ -42,7 +42,7 @@ End Goal: Local Windows application that converts long-form VODs into highlight 
 - [x] Chunk filenames are sequential and deterministic
 - [x] Chunk metadata written to JSON
 - [x] All chunks play independently
-- [ ] Multi-hour video tested
+- [x] Multi-hour video tested
 
 ---
 
@@ -72,7 +72,7 @@ End Goal: Local Windows application that converts long-form VODs into highlight 
 - [x] Whisper model integrated (local)
 - [ ] Transcription cached per chunk (deferred — Phase 2)
 - [x] Timestamps preserved
-- [ ] Long videos complete without crashes
+- [x] Long videos complete without crashes
 - [x] CPU-only execution confirmed
 - [x] Transcription errors handled
 
@@ -90,11 +90,11 @@ End Goal: Local Windows application that converts long-form VODs into highlight 
 
 ## Day 7 — Scoring Engine & Highlight Selection
 
-- [ ] Weighted scoring formula defined
-- [ ] Audio + text scores combined
-- [ ] Highlight threshold defined
-- [ ] Highlight chunks flagged
-- [ ] Scores logged for tuning
+- [x] Weighted scoring formula defined
+- [x] Audio + text scores combined
+- [x] Highlight threshold defined
+- [x] Highlight chunks flagged
+- [x] Scores logged for tuning
 
 ---
 
