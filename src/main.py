@@ -13,6 +13,11 @@ from src.score_merger import merge_text_scores_into_chunks
 from src.scoring import apply_final_scores_to_chunks
 from src.highlight_selector import flag_highlight_chunks
 from src.score_logger import log_scores_for_tuning
+from src.highlight_merger import merge_adjacent_highlights
+from src.highlight_buffer import add_buffers_to_highlights
+from src.highlight_filter import filter_short_highlights
+
+
 
 def get_input_video() -> Path:
     if not INPUT_DIR.exists():
@@ -64,5 +69,15 @@ if __name__ == "__main__":
 
     logged = log_scores_for_tuning()
     print(f"Logged scores for {logged} chunks.")
+
+    merged = merge_adjacent_highlights()
+    print(f"Merged into {len(merged)} highlight segments.")
+
+    buffered = add_buffers_to_highlights()
+    print(f"Buffered {len(buffered)} highlight segments.")
+
+    final_timeline = filter_short_highlights()
+    print(f"Final highlight timeline has {len(final_timeline)} clips.")
+
 
     

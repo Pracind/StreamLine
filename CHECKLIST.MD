@@ -100,10 +100,10 @@ End Goal: Local Windows application that converts long-form VODs into highlight 
 
 ## Day 8 — Highlight Refinement
 
-- [ ] Adjacent highlights merged
-- [ ] Buffer time added before/after clips
-- [ ] Clips below minimum duration removed
-- [ ] Final highlight timeline produced
+- [x] Adjacent highlights merged
+- [x] Buffer time added before/after clips
+- [x] Clips below minimum duration removed
+- [x] Final highlight timeline produced
 
 ---
 

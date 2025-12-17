@@ -24,3 +24,8 @@ TEXT_WEIGHT = 0.3
 
 # Highlight selection
 HIGHLIGHT_THRESHOLD = 0.65
+
+# Highlight refinement
+MERGE_GAP_SECONDS = 5
+PRE_BUFFER_SECONDS = 5
+POST_BUFFER_SECONDS = 5
