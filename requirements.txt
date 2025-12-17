@@ -9,3 +9,6 @@ tqdm>=4.66
 
 numpy
 soundfile
+
+openai-whisper
+torch

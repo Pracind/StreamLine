@@ -69,12 +69,12 @@ End Goal: Local Windows application that converts long-form VODs into highlight 
 
 ## Day 5 — Speech-to-Text (Whisper)
 
-- [ ] Whisper model integrated (local)
-- [ ] Transcription cached per chunk
-- [ ] Timestamps preserved
+- [x] Whisper model integrated (local)
+- [ ] Transcription cached per chunk (deferred — Phase 2)
+- [x] Timestamps preserved
 - [ ] Long videos complete without crashes
-- [ ] CPU-only execution confirmed
-- [ ] Transcription errors handled
+- [x] CPU-only execution confirmed
+- [x] Transcription errors handled
 
 ---
 

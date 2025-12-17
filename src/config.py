@@ -13,3 +13,7 @@ AUDIO_SAMPLE_RATE = 16000
 # Audio spike detection
 SPIKE_THRESHOLD = 1.5
 SILENCE_RMS_THRESHOLD = 1e-4
+
+# Whisper transcription
+WHISPER_MODEL_NAME = "base"
+TRANSCRIPTS_DIR = DATA_DIR / "transcripts"

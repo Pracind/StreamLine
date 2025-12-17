@@ -30,6 +30,7 @@ def extract_audio_from_chunks():
             "-vn",
             "-ac", "1",
             "-ar", str(AUDIO_SAMPLE_RATE),
+            "-af", "loudnorm",
             "-f", "wav",
             str(audio_output_path),
         ]
