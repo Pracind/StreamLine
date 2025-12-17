@@ -80,11 +80,11 @@ End Goal: Local Windows application that converts long-form VODs into highlight 
 
 ## Day 6 — Text-Based Scoring
 
-- [ ] Keyword list defined
-- [ ] Keyword hits counted per chunk
-- [ ] Optional sentiment score implemented
-- [ ] Text score normalized
-- [ ] Text score merged with audio metadata
+- [x] Keyword list defined
+- [x] Keyword hits counted per chunk
+- [x] Optional sentiment score implemented
+- [x] Text score normalized
+- [x] Text score merged with audio metadata
 
 ---
 

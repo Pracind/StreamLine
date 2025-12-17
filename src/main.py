@@ -8,6 +8,8 @@ from src.video_chunker import chunk_video
 from src.audio_extractor import extract_audio_from_chunks
 from src.audio_rms import calculate_rms_energy, write_rms_to_metadata
 from src.transcriber import transcribe_audio_chunks
+from src.text_features import count_keyword_hits_per_chunk
+from src.score_merger import merge_text_scores_into_chunks
 
 
 def get_input_video() -> Path:
@@ -45,3 +47,9 @@ if __name__ == "__main__":
 
     transcripts = transcribe_audio_chunks()
     print(f"Transcribed {len(transcripts)} chunks.")
+
+    text_features = count_keyword_hits_per_chunk()
+    print(f"Keyword hits counted for {len(text_features)} chunks.")
+
+    merge_text_scores_into_chunks()
+    print("Text scores merged into chunk metadata.")
