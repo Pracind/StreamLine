@@ -17,6 +17,8 @@ from src.highlight_merger import merge_adjacent_highlights
 from src.highlight_buffer import add_buffers_to_highlights
 from src.highlight_filter import filter_short_highlights
 from src.clip_extractor import extract_highlight_clips
+from src.clip_concatenator import concatenate_clips
+from src.final_encoder import encode_final_video
 
 
 
@@ -39,7 +41,7 @@ def get_input_video() -> Path:
     return video_files[0]
 
 
-if __name__ == "__main__":
+def main():
     input_video = get_input_video()
     print(f"Using input video: {input_video}")
 
@@ -82,6 +84,16 @@ if __name__ == "__main__":
 
     clips = extract_highlight_clips()
     print(f"Extracted {len(clips)} highlight clips.")
+
+    final_video = concatenate_clips()
+    print(f"Concatenated highlights video created: {final_video}")
+
+    final_encoded = encode_final_video()
+    print(f"Final highlight video encoded: {final_encoded}")
+
+
+if __name__ == "__main__":
+    main()
 
 
 

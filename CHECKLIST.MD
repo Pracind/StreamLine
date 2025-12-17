@@ -118,11 +118,11 @@ End Goal: Local Windows application that converts long-form VODs into highlight 
 
 ## Day 10 — Final Highlight Video Assembly
 
-- [ ] Clips concatenated in correct order
-- [ ] Final video encoded
-- [ ] Playback verified
-- [ ] File size reasonable
-- [ ] Export completes unattended
+- [x] Clips concatenated in correct order
+- [x] Final video encoded
+- [x] Playback verified
+- [x] File size reasonable
+- [x] Export completes unattended
 
 ---
 

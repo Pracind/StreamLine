@@ -7,7 +7,7 @@ CHUNKS_DIR = DATA_DIR / "chunks"
 AUDIO_DIR = DATA_DIR / "audio"
 
 # Chunking
-CHUNK_DURATION_SECONDS = 60
+CHUNK_DURATION_SECONDS = 5
 AUDIO_SAMPLE_RATE = 16000
 
 # Audio spike detection

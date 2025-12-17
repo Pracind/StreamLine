@@ -1,6 +1,7 @@
 import json
 import subprocess
 from pathlib import Path
+import shutil
 
 from src.config import DATA_DIR
 
@@ -25,6 +26,9 @@ def extract_highlight_clips():
 
     with open(TIMELINE_PATH, "r", encoding="utf-8") as f:
         highlights = json.load(f)
+
+    if OUTPUT_DIR.exists():
+        shutil.rmtree(OUTPUT_DIR)
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
