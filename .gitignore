@@ -1,0 +1,13 @@
+# Virtual environment
+.venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Local data & outputs
+data/
+output/
+
+# Ignore timeline planning artifacts
+TIMELINE/
