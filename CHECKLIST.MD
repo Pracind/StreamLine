@@ -36,12 +36,12 @@ End Goal: Local Windows application that converts long-form VODs into highlight 
 
 ## Day 2 — Deterministic Video Chunking
 
-- [ ] Input video loaded from data/input/
-- [ ] Video split into fixed-length chunks
-- [ ] No re-encoding artifacts
-- [ ] Chunk filenames are sequential and deterministic
-- [ ] Chunk metadata written to JSON
-- [ ] All chunks play independently
+- [x] Input video loaded from data/input/
+- [x] Video split into fixed-length chunks
+- [x] No re-encoding artifacts
+- [x] Chunk filenames are sequential and deterministic
+- [x] Chunk metadata written to JSON
+- [x] All chunks play independently
 - [ ] Multi-hour video tested
 
 ---
