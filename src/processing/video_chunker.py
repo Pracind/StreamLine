@@ -2,7 +2,7 @@ import subprocess
 import json
 from pathlib import Path
 
-from src.config import CHUNK_DURATION_SECONDS, CHUNKS_DIR
+from src.infra.config import CHUNK_DURATION_SECONDS, CHUNKS_DIR
 
 
 def chunk_video(input_video_path: str, logger):
@@ -24,6 +24,7 @@ def chunk_video(input_video_path: str, logger):
 
     command = [
         "ffmpeg",
+        "-y",
         "-hide_banner",
         "-loglevel", "error",
         "-i", input_video_path,

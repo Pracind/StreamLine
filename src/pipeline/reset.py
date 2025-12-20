@@ -1,7 +1,7 @@
 import shutil
 from pathlib import Path
 
-from src.config import DATA_DIR
+from src.infra.config import DATA_DIR
 
 
 DERIVED_DIRS = [

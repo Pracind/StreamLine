@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from src.config import CHUNKS_DIR, DATA_DIR, MERGE_GAP_SECONDS
+from src.infra.config import CHUNKS_DIR, DATA_DIR, MERGE_GAP_SECONDS
 
 
 HIGHLIGHTS_DIR = DATA_DIR / "highlights"

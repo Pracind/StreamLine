@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from src.config import DATA_DIR
+from src.infra.config import DATA_DIR
 
 KEYWORDS_PATH = DATA_DIR / "keywords.json"
 TRANSCRIPTS_DIR = DATA_DIR / "transcripts"

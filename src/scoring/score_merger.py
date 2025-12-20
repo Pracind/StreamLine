@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from src.config import CHUNKS_DIR, DATA_DIR
+from src.infra.config import CHUNKS_DIR, DATA_DIR
 
 
 TEXT_FEATURES_PATH = DATA_DIR / "text_features.json"

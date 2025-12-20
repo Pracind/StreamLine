@@ -2,7 +2,7 @@ import subprocess
 from pathlib import Path
 import sys
 
-from src.config import AUDIO_DIR, AUDIO_SAMPLE_RATE, CHUNKS_DIR
+from src.infra.config import AUDIO_DIR, AUDIO_SAMPLE_RATE, CHUNKS_DIR
 
 
 def extract_audio_from_chunks(logger, resume: bool):

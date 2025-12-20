@@ -147,11 +147,11 @@ End Goal: Local Windows application that converts long-form VODs into highlight 
 
 ## Day 13 — Minimal Desktop UI
 
-- [ ] PySide6 window created
-- [ ] File picker works
-- [ ] Start button triggers pipeline
-- [ ] Progress bar updates
-- [ ] App remains responsive
+- [x] PySide6 window created
+- [x] File picker works
+- [x] Start button triggers pipeline
+- [x] Progress bar updates
+- [x] App remains responsive
 
 ---
 
