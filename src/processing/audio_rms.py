@@ -4,7 +4,7 @@ from pathlib import Path
 import numpy as np
 import soundfile as sf
 
-from src.infra.config import AUDIO_DIR, CHUNKS_DIR, SPIKE_THRESHOLD, SILENCE_RMS_THRESHOLD
+from infra.config import AUDIO_DIR, CHUNKS_DIR, SPIKE_THRESHOLD, SILENCE_RMS_THRESHOLD
 
 
 def calculate_rms_energy(logger, resume: bool):

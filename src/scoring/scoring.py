@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from src.infra.config import CHUNKS_DIR, AUDIO_WEIGHT, TEXT_WEIGHT
+from infra.config import CHUNKS_DIR, AUDIO_WEIGHT, TEXT_WEIGHT
 
 
 def compute_final_score(audio_score: float, text_score: float) -> float:

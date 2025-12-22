@@ -1,6 +1,6 @@
 import json
 
-from src.infra.config import CHUNKS_DIR, HIGHLIGHT_THRESHOLD
+from infra.config import CHUNKS_DIR, HIGHLIGHT_THRESHOLD
 
 
 def flag_highlight_chunks():

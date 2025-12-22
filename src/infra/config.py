@@ -1,24 +1,77 @@
 from pathlib import Path
+import sys
 
-# Directories
-DATA_DIR = Path("data")
+# ─────────────────────────────────────────────
+# Environment detection
+# ─────────────────────────────────────────────
+
+IS_FROZEN = getattr(sys, "frozen", False)
+
+
+# ─────────────────────────────────────────────
+# Base directories
+# ─────────────────────────────────────────────
+
+if IS_FROZEN:
+    # PyInstaller runtime
+    BASE_DIR = Path(sys.executable).parent          # dist/VOD-Engine/
+    INTERNAL_DIR = Path(sys._MEIPASS)                # dist/VOD-Engine/_internal/
+else:
+    # Development environment
+    BASE_DIR = Path(__file__).resolve().parents[2]   # project root
+    INTERNAL_DIR = BASE_DIR
+
+
+# ─────────────────────────────────────────────
+# Static bundled assets (READ-ONLY)
+# ─────────────────────────────────────────────
+
+ASSETS_DIR = INTERNAL_DIR / "assets"
+KEYWORDS_PATH = ASSETS_DIR / "keywords.json"
+
+
+# ─────────────────────────────────────────────
+# Runtime-generated data (READ / WRITE)
+# ─────────────────────────────────────────────
+
+DATA_DIR = BASE_DIR / "data"
+
 INPUT_DIR = DATA_DIR / "input"
 CHUNKS_DIR = DATA_DIR / "chunks"
 AUDIO_DIR = DATA_DIR / "audio"
+TRANSCRIPTS_DIR = DATA_DIR / "transcripts"
+HIGHLIGHTS_DIR = DATA_DIR / "highlights"
+OUTPUT_DIR = DATA_DIR / "output"
+
+# Create runtime directories only
+for directory in (
+    DATA_DIR,
+    INPUT_DIR,
+    CHUNKS_DIR,
+    AUDIO_DIR,
+    TRANSCRIPTS_DIR,
+    HIGHLIGHTS_DIR,
+    OUTPUT_DIR,
+):
+    directory.mkdir(parents=True, exist_ok=True)
+
+
+# ─────────────────────────────────────────────
+# Processing configuration
+# ─────────────────────────────────────────────
 
 # Chunking
 CHUNK_DURATION_SECONDS = 45
 AUDIO_SAMPLE_RATE = 16000
 
-# Audio spike detection
+# Audio analysis
 SPIKE_THRESHOLD = 1.5
 SILENCE_RMS_THRESHOLD = 1e-4
 
-# Whisper transcription
+# Whisper
 WHISPER_MODEL_NAME = "base"
-TRANSCRIPTS_DIR = DATA_DIR / "transcripts"
 
-# Scoring weights (Phase 1)
+# Scoring weights
 AUDIO_WEIGHT = 0.7
 TEXT_WEIGHT = 0.3
 

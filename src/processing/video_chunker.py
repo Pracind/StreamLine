@@ -2,7 +2,7 @@ import subprocess
 import json
 from pathlib import Path
 
-from src.infra.config import CHUNK_DURATION_SECONDS, CHUNKS_DIR
+from infra.config import CHUNK_DURATION_SECONDS, CHUNKS_DIR
 
 
 def chunk_video(input_video_path: str, logger):

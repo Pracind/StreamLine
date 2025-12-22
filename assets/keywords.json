@@ -1,0 +1,80 @@
+{
+  "sentiment": {
+    "positive": [
+      "nice",
+      "good",
+      "great",
+      "awesome",
+      "clean",
+      "perfect",
+      "insane",
+      "crazy",
+      "huge",
+      "clutch",
+      "let's go",
+      "lets go"
+    ],
+    "negative": [
+      "bad",
+      "terrible",
+      "awful",
+      "unlucky",
+      "stupid",
+      "dumb",
+      "i'm dead",
+      "im dead",
+      "no way",
+      "are you kidding",
+      "what am i doing"
+    ]
+  },
+  "hype": [
+    "let's go",
+    "lets go",
+    "we got him",
+    "we got it",
+    "nice",
+    "clutch",
+    "huge",
+    "let's fucking go",
+    "lets fucking go",
+    "easy",
+    "too easy",
+    "that was clean",
+    "insane",
+    "crazy",
+    "oh my god",
+    "oh my god dude"
+  ],
+  "fail": [
+    "no way",
+    "are you kidding",
+    "i'm dead",
+    "i'm dead bro",
+    "what am i doing",
+    "that was bad",
+    "i messed up",
+    "i threw",
+    "that's unlucky",
+    "unlucky",
+    "bruh"
+  ],
+  "shock": [
+    "what",
+    "wait what",
+    "hold on",
+    "huh",
+    "did that just happen",
+    "excuse me",
+    "hello"
+  ],
+  "engagement": [
+    "chat",
+    "guys",
+    "did you see that",
+    "watch this",
+    "look at this",
+    "listen",
+    "trust me"
+  ]
+}

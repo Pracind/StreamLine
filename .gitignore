@@ -11,3 +11,10 @@ output/
 
 # Ignore timeline planning artifacts
 TIMELINE/
+
+# Ignore Build 
+/build/
+/dist/
+/*.exe
+src/vod_engine.egg-info/
+ffmpeg/

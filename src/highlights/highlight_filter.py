@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from src.infra.config import (
+from infra.config import (
     DATA_DIR,
     MIN_HIGHLIGHT_DURATION_SECONDS,
 )

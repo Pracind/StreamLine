@@ -3,7 +3,7 @@ import subprocess
 from pathlib import Path
 import shutil
 
-from src.infra.config import DATA_DIR
+from infra.config import DATA_DIR
 
 
 HIGHLIGHTS_DIR = DATA_DIR / "highlights"

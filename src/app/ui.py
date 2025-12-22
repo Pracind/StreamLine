@@ -1,6 +1,6 @@
 import sys
 from pathlib import Path
-from src.pipeline.pipeline_runner import run_pipeline_from_ui
+from pipeline.pipeline_runner import run_pipeline_from_ui
 from PySide6.QtWidgets import QProgressBar
 
 from PySide6.QtWidgets import (
@@ -32,10 +32,8 @@ class PipelineWorker(QThread):
                 progress_callback=self.emit_progress,
             )
         except Exception as e:
-            print(">>> PIPELINE ERROR <<<", flush=True)
-            print(e, flush=True)
+            print(">>> PIPELINE ERROR <<<")
             self.error.emit(str(e))
-            return
         
         self.finished.emit()
 

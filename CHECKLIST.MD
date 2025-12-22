@@ -157,9 +157,9 @@ End Goal: Local Windows application that converts long-form VODs into highlight 
 
 ## Day 14 — Packaging & Distribution
 
-- [ ] PyInstaller configuration created
+- [x] PyInstaller configuration created
 - [ ] .exe built successfully
-- [ ] FFmpeg bundled
+- [x] FFmpeg bundled
 - [ ] App runs on clean machine
 - [ ] Basic user instructions written
 

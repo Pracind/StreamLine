@@ -1,7 +1,7 @@
 import csv
 from pathlib import Path
 
-from src.infra.config import CHUNKS_DIR, DATA_DIR
+from infra.config import CHUNKS_DIR, DATA_DIR
 
 
 LOGS_DIR = DATA_DIR / "logs"

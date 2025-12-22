@@ -5,26 +5,26 @@ import traceback
 import os
 import psutil
 
-from src.infra.config import INPUT_DIR, CHUNKS_DIR
+from infra.config import INPUT_DIR, CHUNKS_DIR
 
-from src.processing.video_chunker import chunk_video
-from src.processing.audio_extractor import extract_audio_from_chunks
-from src.processing.audio_rms import calculate_rms_energy, write_rms_to_metadata
-from src.processing.transcriber import transcribe_audio_chunks
-from src.scoring.text_features import count_keyword_hits_per_chunk
-from src.scoring.score_merger import merge_text_scores_into_chunks
-from src.scoring.scoring import apply_final_scores_to_chunks
-from src.highlights.highlight_selector import flag_highlight_chunks
-from src.scoring.score_logger import log_scores_for_tuning
-from src.highlights.highlight_merger import merge_adjacent_highlights
-from src.highlights.highlight_buffer import add_buffers_to_highlights
-from src.highlights.highlight_filter import filter_short_highlights
-from src.highlights.clip_extractor import extract_highlight_clips
-from src.highlights.clip_concatenator import concatenate_clips
-from src.output.final_encoder import encode_final_video
-from src.pipeline.reset import reset_derived_state
-from src.infra.logger import setup_logger
-from src.output.cleanup import cleanup_temporary_files
+from processing.video_chunker import chunk_video
+from processing.audio_extractor import extract_audio_from_chunks
+from processing.audio_rms import calculate_rms_energy, write_rms_to_metadata
+from processing.transcriber import transcribe_audio_chunks
+from scoring.text_features import count_keyword_hits_per_chunk
+from scoring.score_merger import merge_text_scores_into_chunks
+from scoring.scoring import apply_final_scores_to_chunks
+from highlights.highlight_selector import flag_highlight_chunks
+from scoring.score_logger import log_scores_for_tuning
+from highlights.highlight_merger import merge_adjacent_highlights
+from highlights.highlight_buffer import add_buffers_to_highlights
+from highlights.highlight_filter import filter_short_highlights
+from highlights.clip_extractor import extract_highlight_clips
+from highlights.clip_concatenator import concatenate_clips
+from output.final_encoder import encode_final_video
+from pipeline.reset import reset_derived_state
+from infra.logger import setup_logger
+from output.cleanup import cleanup_temporary_files
 
 
 
@@ -116,36 +116,46 @@ def run_pipeline(
     transcribe_audio_chunks(logger)
     step += 1
 
+    logger.info(">>> AFTER TRANSCRIPTION — ENTERING SCORING <<<")
+
     report("Scoring text features")
-    count_keyword_hits_per_chunk()
+    count_keyword_hits_per_chunk(logger)
+    logger.info("STEP %d DONE: text features", step)
     step += 1
 
     report("Merging text scores")
     merge_text_scores_into_chunks()
+    logger.info("STEP %d DONE: merge scoring", step)
     step += 1
 
     report("Computing final highlight scores")
     apply_final_scores_to_chunks()
+    logger.info("STEP %d DONE: final scoring", step)
     step += 1
 
     report("Selecting highlight chunks")
     flag_highlight_chunks()
+    logger.info("STEP %d DONE: selecting highlights", step)
     step += 1
 
     report("Logging scores for tuning")
     log_scores_for_tuning()
+    logger.info("STEP %d DONE: logging scoring", step)
     step += 1
 
     report("Merging adjacent highlights")
     merge_adjacent_highlights()
+    logger.info("STEP %d DONE: merging highlights", step)
     step += 1
 
     report("Adding buffers to highlights")
     add_buffers_to_highlights()
+    logger.info("STEP %d DONE: adding buffer", step)
     step += 1
 
     report("Filtering short highlights")
     filter_short_highlights()
+    logger.info("STEP %d DONE: filtering highlights", step)
     step += 1
 
     report("Extracting highlight clips")

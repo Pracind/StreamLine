@@ -1,7 +1,7 @@
 import subprocess
 from pathlib import Path
 
-from src.infra.config import DATA_DIR
+from infra.config import DATA_DIR
 
 
 CLIPS_DIR = DATA_DIR / "output" / "clips"

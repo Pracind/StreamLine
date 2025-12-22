@@ -3,7 +3,7 @@ from pathlib import Path
 
 import whisper
 
-from src.infra.config import (
+from infra.config import (
     AUDIO_DIR,
     TRANSCRIPTS_DIR,
     WHISPER_MODEL_NAME,
