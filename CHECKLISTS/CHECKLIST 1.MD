@@ -166,8 +166,8 @@ End Goal: Local Windows application that converts long-form VODs into highlight 
 
 ## Phase 1 Exit Criteria
 
-- [ ] 1–4 hour VOD → highlight video
+- [x] 1–4 hour VOD → highlight video
 - [x] No cloud dependencies
 - [x] No paid APIs
-- [ ] Repeatable results
-- [ ] Foundation ready for Phase 2
+- [x] Repeatable results
+- [x] Foundation ready for Phase 2

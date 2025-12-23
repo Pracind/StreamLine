@@ -35,10 +35,19 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description="VOD-Engine — Generate highlights from a VOD"
     )
-    parser.add_argument(
+
+    input_group = parser.add_mutually_exclusive_group(required=True)
+
+    input_group.add_argument(
         "--input",
         type=Path,
-        help="Path to input .mp4 video (optional)"
+        help="Path to input .mp4 video"
+    )
+
+    input_group.add_argument(
+        "--twitch-vod",
+        type=str,
+        help="Twitch VOD URL"
     )
     
     parser.add_argument(
@@ -178,7 +187,12 @@ def main():
     reset_derived_state(args.resume)
     logger = setup_logger()
 
-    input_video = get_input_video(args.input)
+    if args.twitch_vod:
+        from infra.twitch import resolve_twitch_vod
+        vod_meta = resolve_twitch_vod(args.twitch_vod, logger)
+        input_video = vod_meta.local_video_path
+    else:
+        input_video = get_input_video(args.input)
 
     try:
         run_pipeline(input_video, args.resume, logger)

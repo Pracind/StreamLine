@@ -85,3 +85,30 @@ POST_BUFFER_SECONDS = 5
 
 # Highlight filtering
 MIN_HIGHLIGHT_DURATION_SECONDS = 10
+
+
+#Twitch Settings 
+TWITCH_DIR = DATA_DIR / "twitch"
+TWITCH_VOD_DIR = TWITCH_DIR / "vods"
+TWITCH_META_DIR = TWITCH_DIR / "metadata"
+
+for directory in (
+    TWITCH_DIR,
+    TWITCH_VOD_DIR,
+    TWITCH_META_DIR,
+):
+    directory.mkdir(parents=True, exist_ok=True)
+
+
+#Twitch Chat Settings
+TWITCH_CHAT_DIR = TWITCH_DIR / "chat"
+TWITCH_CHAT_RAW_DIR = TWITCH_CHAT_DIR / "raw"
+TWITCH_DOWNLOADER_PATH = Path(
+    r"C:\tools\TwitchDownloader\TwitchDownloaderCLI.exe"
+)
+
+for directory in (
+    TWITCH_CHAT_DIR,
+    TWITCH_CHAT_RAW_DIR,
+):
+    directory.mkdir(parents=True, exist_ok=True)

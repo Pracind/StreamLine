@@ -20,30 +20,30 @@
 
 ## Day 15 — Scope Lock & Signal Definition (No Code)
 
-- [ ] Define “chat spike”
-  - [ ] Messages-per-second threshold
-  - [ ] Spike relative to rolling baseline
-- [ ] Define emote flood detection
-  - [ ] % of messages containing emotes
-  - [ ] Repeated identical emotes
-- [ ] Define chat keyword list
-  - [ ] Examples: “OMG”, “NO WAY”, “CLIP IT”
-- [ ] Define how chat affects highlights
-  - [ ] Additive score vs multiplier
-- [ ] Decide chat-to-video time alignment tolerance (± seconds)
-- [ ] Document assumptions in README
+- [x] Define “chat spike”
+  - [x] Messages-per-second threshold
+  - [x] Spike relative to rolling baseline
+- [x] Define emote flood detection
+  - [x] % of messages containing emotes
+  - [x] Repeated identical emotes
+- [x] Define chat keyword list
+  - [x] Examples: “OMG”, “NO WAY”, “CLIP IT”
+- [x] Define how chat affects highlights
+  - [x] Additive score vs multiplier
+- [x] Decide chat-to-video time alignment tolerance (± seconds)
+- [x] Document assumptions in README
 
 ---
 
 ## Day 16 — Twitch VOD Metadata & Chat Acquisition
 
-- [ ] Accept Twitch VOD URL as input
-- [ ] Resolve VOD ID
-- [ ] Validate VOD duration
-- [ ] Download chat replay (offline)
-- [ ] Store raw chat logs
-- [ ] Handle missing / expired VODs
-- [ ] CLI flag: `--twitch-vod <url>`
+- [x] Accept Twitch VOD URL as input
+- [x] Resolve VOD ID
+- [x] Validate VOD duration
+- [x] Download chat replay (offline)
+- [x] Store raw chat logs
+- [x] Handle missing / expired VODs
+- [x] CLI flag: `--twitch-vod <url>`
 
 ---
 
