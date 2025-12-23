@@ -3,6 +3,12 @@ import re
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
+from processing.chat.timestamp_normalizer import normalize_chat_timestamps
+from processing.chat.text_normalizer import normalize_chat_text
+from processing.chat.username_stripper import strip_usernames
+from processing.chat.emote_extractor import extract_emotes
+from processing.chat.message_filter import filter_chat_messages
+from processing.chat.final_chat_export import export_final_chat
 
 from infra.config import (
     TWITCH_DIR,
@@ -136,6 +142,14 @@ def resolve_twitch_vod(vod_url: str, logger) -> TwitchVODMetadata:
 
     # ─── Download chat replay ─────────────────
     download_twitch_chat(vod_id, logger)
+    normalize_chat_timestamps(vod_id, logger)
+    normalize_chat_text(vod_id, logger)
+    strip_usernames(vod_id, logger)
+    extract_emotes(vod_id, logger)
+    filter_chat_messages(vod_id, logger)
+
+    # Final canonical export
+    export_final_chat(vod_id, logger)
 
     return TwitchVODMetadata(
         vod_id=vod_id,

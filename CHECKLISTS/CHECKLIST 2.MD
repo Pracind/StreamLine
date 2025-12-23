@@ -49,12 +49,12 @@
 
 ## Day 17 — Chat Log Normalization
 
-- [ ] Convert chat timestamps → seconds from VOD start
-- [ ] Normalize message text (lowercase, trim)
-- [ ] Strip usernames / IDs
-- [ ] Extract emotes as tokens
-- [ ] Filter empty / spam messages
-- [ ] Save normalized output to `data/chat/normalized.json`
+- [x] Convert chat timestamps → seconds from VOD start
+- [x] Normalize message text (lowercase, trim)
+- [x] Strip usernames / IDs
+- [X] Extract emotes as tokens
+- [X] Filter empty / spam messages
+- [x] Save normalized output to `data/chat/normalized.json`
 
 ---
 

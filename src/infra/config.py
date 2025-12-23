@@ -112,3 +112,19 @@ for directory in (
     TWITCH_CHAT_RAW_DIR,
 ):
     directory.mkdir(parents=True, exist_ok=True)
+
+
+TWITCH_CHAT_NORMALIZED_DIR = TWITCH_CHAT_DIR / "normalized"
+TWITCH_CHAT_NORMALIZED_DIR.mkdir(parents=True, exist_ok=True)
+
+TWITCH_CHAT_TEXT_DIR = TWITCH_CHAT_DIR / "normalized_text"
+TWITCH_CHAT_TEXT_DIR.mkdir(parents=True, exist_ok=True)
+
+TWITCH_CHAT_USERLESS_DIR = TWITCH_CHAT_DIR / "normalized_text_userless"
+TWITCH_CHAT_USERLESS_DIR.mkdir(parents=True, exist_ok=True)
+
+TWITCH_CHAT_EMOTES_DIR = TWITCH_CHAT_DIR / "emotes"
+TWITCH_CHAT_EMOTES_DIR.mkdir(parents=True, exist_ok=True)
+
+TWITCH_CHAT_CLEAN_DIR = TWITCH_CHAT_DIR / "clean"
+TWITCH_CHAT_CLEAN_DIR.mkdir(parents=True, exist_ok=True)
