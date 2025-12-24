@@ -1,0 +1,33 @@
+{
+  "global": [
+    "omg",
+    "no way",
+    "holy",
+    "wtf",
+    "lets go",
+    "let's go",
+    "clip it",
+    "clippable",
+    "insane",
+    "crazy",
+    "what just happened"
+  ],
+
+  "positive": [
+    "lets go",
+    "let's go",
+    "insane",
+    "crazy",
+    "holy"
+  ],
+
+  "negative": [
+    "wtf",
+    "what just happened"
+  ],
+
+  "clip_calls": [
+    "clip it",
+    "clippable"
+  ]
+}

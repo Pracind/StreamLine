@@ -82,11 +82,11 @@
 
 ## Day 20 — Chat Keyword & Phrase Scoring
 
-- [ ] Define chat keyword list
-- [ ] Count keyword hits per time window
-- [ ] Normalize keyword score
-- [ ] Keep chat keywords separate from speech keywords
-- [ ] Store keyword scoring output
+- [x] Define chat keyword list
+- [x] Count keyword hits per time window
+- [x] Normalize keyword score
+- [x] Keep chat keywords separate from speech keywords
+- [x] Store keyword scoring output
 
 ---
 

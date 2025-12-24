@@ -25,13 +25,16 @@ from output.final_encoder import encode_final_video
 from pipeline.reset import reset_derived_state
 from infra.logger import setup_logger
 from output.cleanup import cleanup_temporary_files
+
+# Chat Processing Imports
 from processing.chat.activity_metrics import compute_messages_per_second
 from processing.chat.baseline_metrics import compute_rolling_baseline
 from processing.chat.spike_detection import detect_chat_spikes
 from processing.chat.emote_metrics import compute_emote_density_per_second
 from processing.chat.emote_repetition import detect_repeated_emotes
 from processing.chat.emote_score import compute_emote_score
-
+from processing.chat.keyword_metrics import compute_chat_keyword_hits
+from processing.chat.keyword_score import compute_chat_keyword_score
 
 
 TOTAL_STEPS = 14
@@ -205,6 +208,8 @@ def main():
         compute_emote_density_per_second(logger)
         detect_repeated_emotes(logger)
         compute_emote_score(logger)
+        compute_chat_keyword_hits(logger)
+        compute_chat_keyword_score(logger)
 
     else:
         input_video = get_input_video(args.input)

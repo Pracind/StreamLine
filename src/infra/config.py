@@ -137,6 +137,8 @@ CHAT_BASELINE_WINDOW_SECONDS = 30
 CHAT_SPIKE_RATIO_THRESHOLD = 2.0      # 2× normal activity
 CHAT_MIN_BASELINE = 1.0               # ignore near-zero baselines
 
+CHAT_KEYWORDS_PATH = ASSETS_DIR / "chat_keywords.json"
+KEYWORD_SCORE_SCALE = 1.0
 
 # Emotes Settings
 
