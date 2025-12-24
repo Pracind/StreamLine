@@ -104,10 +104,10 @@
 
 ## Day 22 — Chat ↔ Video Time Alignment
 
-- [ ] Align chat timeline to video timeline
-- [ ] Configurable chat delay / offset
-- [ ] Handle truncated or partial VODs
-- [ ] Validate alignment on real Twitch VODs
+- [x] Align chat timeline to video timeline
+- [x] Configurable chat delay / offset
+- [x] Handle truncated or partial VODs
+- [x] Validate alignment on real Twitch VODs
 
 ---
 

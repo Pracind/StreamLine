@@ -38,9 +38,11 @@ from processing.chat.keyword_score import compute_chat_keyword_score
 from processing.chat.chat_score import compute_chat_score
 from processing.chat.chat_smoothing import smooth_chat_score
 from processing.chat.chat_export import export_final_chat_scores
+from processing.chat.chat_alignment import align_chat_to_video
 
 
 TOTAL_STEPS = 14
+
 
 
 def parse_args():
@@ -216,6 +218,7 @@ def main():
         compute_chat_score(logger)
         smooth_chat_score(logger)
         export_final_chat_scores(logger)
+        align_chat_to_video(logger, vod_meta.duration_seconds)
 
     else:
         input_video = get_input_video(args.input)
