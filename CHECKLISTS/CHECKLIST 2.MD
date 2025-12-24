@@ -92,13 +92,13 @@
 
 ## Day 21 — Chat Score Aggregation
 
-- [ ] Combine:
+- [x] Combine:
   - chat activity score
   - emote score
   - keyword score
-- [ ] Produce final chat score per second
-- [ ] Apply rolling smoothing
-- [ ] Export `chat_scores.json`
+- [x] Produce final chat score per second
+- [x] Apply rolling smoothing
+- [x] Export `chat_scores.json`
 
 ---
 

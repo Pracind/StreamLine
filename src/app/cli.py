@@ -35,6 +35,9 @@ from processing.chat.emote_repetition import detect_repeated_emotes
 from processing.chat.emote_score import compute_emote_score
 from processing.chat.keyword_metrics import compute_chat_keyword_hits
 from processing.chat.keyword_score import compute_chat_keyword_score
+from processing.chat.chat_score import compute_chat_score
+from processing.chat.chat_smoothing import smooth_chat_score
+from processing.chat.chat_export import export_final_chat_scores
 
 
 TOTAL_STEPS = 14
@@ -210,6 +213,9 @@ def main():
         compute_emote_score(logger)
         compute_chat_keyword_hits(logger)
         compute_chat_keyword_score(logger)
+        compute_chat_score(logger)
+        smooth_chat_score(logger)
+        export_final_chat_scores(logger)
 
     else:
         input_video = get_input_video(args.input)
