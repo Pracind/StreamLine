@@ -72,11 +72,11 @@
 
 ## Day 19 — Emote Flood Detection
 
-- [ ] Emote density per second
-- [ ] Repeated-emote detection
-- [ ] Configure hype emotes
-- [ ] Normalize emote score
-- [ ] Persist emote scoring metadata
+- [x] Emote density per second
+- [x] Repeated-emote detection
+- [x] Configure hype emotes
+- [x] Normalize emote score
+- [x] Persist emote scoring metadata
 
 ---
 

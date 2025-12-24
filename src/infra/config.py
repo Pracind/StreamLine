@@ -136,3 +136,9 @@ CHAT_BASELINE_WINDOW_SECONDS = 30
 
 CHAT_SPIKE_RATIO_THRESHOLD = 2.0      # 2× normal activity
 CHAT_MIN_BASELINE = 1.0               # ignore near-zero baselines
+
+
+# Emotes Settings
+
+HYPE_EMOTES_PATH = ASSETS_DIR / "hype_emotes.json"
+EMOTE_SCORE_SCALE = 2.0

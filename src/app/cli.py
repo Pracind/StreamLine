@@ -28,6 +28,9 @@ from output.cleanup import cleanup_temporary_files
 from processing.chat.activity_metrics import compute_messages_per_second
 from processing.chat.baseline_metrics import compute_rolling_baseline
 from processing.chat.spike_detection import detect_chat_spikes
+from processing.chat.emote_metrics import compute_emote_density_per_second
+from processing.chat.emote_repetition import detect_repeated_emotes
+from processing.chat.emote_score import compute_emote_score
 
 
 
@@ -199,6 +202,9 @@ def main():
         compute_messages_per_second(logger)
         compute_rolling_baseline(logger)
         detect_chat_spikes(logger)
+        compute_emote_density_per_second(logger)
+        detect_repeated_emotes(logger)
+        compute_emote_score(logger)
 
     else:
         input_video = get_input_video(args.input)

@@ -1,0 +1,28 @@
+{
+  "global": [
+    "Pog",
+    "PogChamp",
+    "POGGERS",
+    "KEKW",
+    "LUL",
+    "OMEGALUL",
+    "PepeLaugh",
+    "Kappa",
+    "Clap",
+    "EZ"
+  ],
+
+  "positive": [
+    "Pog",
+    "PogChamp",
+    "POGGERS",
+    "Clap"
+  ],
+
+  "negative": [
+    "KEKW",
+    "LUL",
+    "OMEGALUL",
+    "PepeLaugh"
+  ]
+}
