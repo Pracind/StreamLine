@@ -128,3 +128,11 @@ TWITCH_CHAT_EMOTES_DIR.mkdir(parents=True, exist_ok=True)
 
 TWITCH_CHAT_CLEAN_DIR = TWITCH_CHAT_DIR / "clean"
 TWITCH_CHAT_CLEAN_DIR.mkdir(parents=True, exist_ok=True)
+
+CHAT_METRICS_DIR = DATA_DIR / "chat" / "metrics"
+CHAT_METRICS_DIR.mkdir(parents=True, exist_ok=True)
+
+CHAT_BASELINE_WINDOW_SECONDS = 30
+
+CHAT_SPIKE_RATIO_THRESHOLD = 2.0      # 2× normal activity
+CHAT_MIN_BASELINE = 1.0               # ignore near-zero baselines

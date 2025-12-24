@@ -25,6 +25,9 @@ from output.final_encoder import encode_final_video
 from pipeline.reset import reset_derived_state
 from infra.logger import setup_logger
 from output.cleanup import cleanup_temporary_files
+from processing.chat.activity_metrics import compute_messages_per_second
+from processing.chat.baseline_metrics import compute_rolling_baseline
+from processing.chat.spike_detection import detect_chat_spikes
 
 
 
@@ -191,6 +194,12 @@ def main():
         from infra.twitch import resolve_twitch_vod
         vod_meta = resolve_twitch_vod(args.twitch_vod, logger)
         input_video = vod_meta.local_video_path
+
+        # Phase 2 – chat metrics (safe to run once per VOD)
+        compute_messages_per_second(logger)
+        compute_rolling_baseline(logger)
+        detect_chat_spikes(logger)
+
     else:
         input_video = get_input_video(args.input)
 

@@ -60,13 +60,13 @@
 
 ## Day 18 — Chat Activity Metrics
 
-- [ ] Messages per second computed
-- [ ] Rolling average baseline
-- [ ] Spike detection implemented
-- [ ] Spike metadata stored:
+- [x] Messages per second computed
+- [x] Rolling average baseline
+- [x] Spike detection implemented
+- [x] Spike metadata stored:
   - timestamp
   - magnitude
-- [ ] Debug metrics logged
+- [x] Debug metrics logged
 
 ---
 
