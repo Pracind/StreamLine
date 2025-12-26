@@ -40,6 +40,8 @@ from processing.chat.chat_smoothing import smooth_chat_score
 from processing.chat.chat_export import export_final_chat_scores
 from processing.chat.chat_alignment import align_chat_to_video
 
+from scoring.chat_boost import apply_chat_boost_to_chunks
+
 
 TOTAL_STEPS = 14
 
@@ -136,7 +138,7 @@ def run_pipeline(
     step += 1
 
     report("Transcribing audio (Whisper)")
-    transcribe_audio_chunks(logger)
+    transcribe_audio_chunks(logger, resume)
     step += 1
 
     logger.info(">>> AFTER TRANSCRIPTION — ENTERING SCORING <<<")
@@ -153,6 +155,7 @@ def run_pipeline(
 
     report("Computing final highlight scores")
     apply_final_scores_to_chunks()
+    apply_chat_boost_to_chunks(logger)
     logger.info("STEP %d DONE: final scoring", step)
     step += 1
 

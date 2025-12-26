@@ -4,6 +4,7 @@ from pathlib import Path
 from infra.config import CHUNKS_DIR, AUDIO_WEIGHT, TEXT_WEIGHT
 
 
+
 def compute_final_score(audio_score: float, text_score: float) -> float:
     return (
         AUDIO_WEIGHT * audio_score
@@ -24,10 +25,13 @@ def apply_final_scores_to_chunks():
         audio_score = float(entry.get("audio_score", 0.0))
         text_score = float(entry.get("text_score", 0.0))
 
-        entry["final_score"] = compute_final_score(
+        phase1 = compute_final_score(
             audio_score=audio_score,
             text_score=text_score,
         )
+
+        entry["phase1_score"] = phase1
+        entry["final_score"] = phase1
 
     with open(chunks_path, "w", encoding="utf-8") as f:
         json.dump(chunks, f, indent=2)

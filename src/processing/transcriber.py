@@ -11,9 +11,13 @@ from infra.config import (
 )
 
 
-def transcribe_audio_chunks(logger):
+def transcribe_audio_chunks(logger, resume: bool):
     TRANSCRIPTS_DIR.mkdir(parents=True, exist_ok=True)
-    clear_existing_transcripts()
+
+    if not resume:
+        clear_existing_transcripts()
+    else:
+        logger.info("Using cached transcripts (resume enabled)")
 
     audio_files = sorted(AUDIO_DIR.glob("chunk_*.wav"))
 

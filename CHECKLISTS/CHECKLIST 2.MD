@@ -113,11 +113,11 @@
 
 ## Day 23 — Chat-Weighted Highlight Scoring
 
-- [ ] Preserve Phase 1 score as baseline
-- [ ] Integrate chat score
-- [ ] Expose chat weight in config
-- [ ] Enable/disable chat influence
-- [ ] Log combined scores per chunk
+- [x] Preserve Phase 1 score as baseline
+- [x] Integrate chat score
+- [x] Expose chat weight in config
+- [x] Enable/disable chat influence
+- [x] Log combined scores per chunk
 
 ---
 

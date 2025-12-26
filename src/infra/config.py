@@ -1,6 +1,8 @@
 from pathlib import Path
 import sys
 
+ENABLE_CHAT_INFLUENCE = True
+
 # ─────────────────────────────────────────────
 # Environment detection
 # ─────────────────────────────────────────────
