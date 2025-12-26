@@ -41,7 +41,7 @@ from processing.chat.chat_export import export_final_chat_scores
 from processing.chat.chat_alignment import align_chat_to_video
 
 from scoring.chat_boost import apply_chat_boost_to_chunks
-
+from highlights.false_positive_filter import filter_false_positive_highlights
 
 TOTAL_STEPS = 14
 
@@ -181,6 +181,7 @@ def run_pipeline(
 
     report("Filtering short highlights")
     filter_short_highlights()
+    filter_false_positive_highlights()
     logger.info("STEP %d DONE: filtering highlights", step)
     step += 1
 

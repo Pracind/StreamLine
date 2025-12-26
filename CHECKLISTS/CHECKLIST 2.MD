@@ -123,10 +123,10 @@
 
 ## Day 24 — Highlight Selection Refinement
 
-- [ ] Allow chat-boosted highlights
-- [ ] Optional chat-only highlights
-- [ ] Noise suppression for small chats
-- [ ] False-positive filtering
+- [x] Allow chat-boosted highlights
+- [x] Optional chat-only highlights
+- [x] Noise suppression for small chats
+- [x] False-positive filtering
 
 ---
 
