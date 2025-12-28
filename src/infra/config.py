@@ -5,7 +5,7 @@ import sys
 # Feature Toggles (GLOBAL)
 # ─────────────────────────────────────────────
 
-ENABLE_CHAT_INFLUENCE = False
+ENABLE_CHAT_INFLUENCE = True
 ENABLE_CHAT_ONLY_HIGHLIGHTS = False
 
 # Threshold for chat-only highlights
@@ -184,3 +184,5 @@ TEXT_STRONG_THRESHOLD = 0.2
 
 # Chat score smoothing
 CHAT_SMOOTHING_WINDOW_SECONDS = 3
+
+TIMELINE_PATH = OUTPUT_DIR / "timeline.txt"

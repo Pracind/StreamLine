@@ -132,13 +132,13 @@
 
 ## Day 25 — Timeline Visualization (Minimal)
 
-- [ ] Simple timeline view (CLI or UI)
-- [ ] Overlay:
+- [x] Simple timeline view (CLI or UI)
+- [x] Overlay:
   - audio score
   - speech score
   - chat score
-- [ ] Inspectable / clickable moments
-- [ ] Debug-focused (not polished UI)
+- [x] Inspectable / clickable moments
+- [x] Debug-focused (not polished UI)
 
 ---
 

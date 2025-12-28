@@ -43,6 +43,8 @@ from processing.chat.chat_alignment import align_chat_to_video
 from scoring.chat_boost import apply_chat_boost_to_chunks
 from highlights.false_positive_filter import filter_false_positive_highlights
 
+from debug.timeline_cli import render_timeline
+
 TOTAL_STEPS = 14
 
 
@@ -52,7 +54,7 @@ def parse_args():
         description="VOD-Engine — Generate highlights from a VOD"
     )
 
-    input_group = parser.add_mutually_exclusive_group(required=True)
+    input_group = parser.add_mutually_exclusive_group()
 
     input_group.add_argument(
         "--input",
@@ -70,6 +72,12 @@ def parse_args():
         "--resume",
         action="store_true",
         help="Resume from existing intermediate results"
+    )
+
+    parser.add_argument(
+        "--timeline",
+        action="store_true",
+        help="Print debug timeline of chunk scores"
     )
     return parser.parse_args()
 
@@ -192,6 +200,7 @@ def run_pipeline(
     report("Concatenating and encoding final video")
     concatenate_clips()
     encode_final_video()
+    render_timeline()
     cleanup_temporary_files(logger)
 
 
@@ -202,15 +211,32 @@ def run_pipeline(
 
 def main():
     args = parse_args()
-    reset_derived_state(args.resume)
     logger = setup_logger()
+
+    # ─── TIMELINE-ONLY MODE ─────────────────────
+    if args.timeline and not args.twitch_vod and not args.input:
+        render_timeline(print_cli=True, save=False)
+        return
+
+    reset_derived_state(args.resume)
+
+    if not (args.input or args.twitch_vod):
+        print("ERROR: one of --input or --twitch-vod is required")
+        sys.exit(2)
 
     if args.twitch_vod:
         from infra.twitch import resolve_twitch_vod
         vod_meta = resolve_twitch_vod(args.twitch_vod, logger)
         input_video = vod_meta.local_video_path
 
-        # Phase 2 – chat metrics (safe to run once per VOD)
+        # ─── TIMELINE VIEW FOR EXISTING RUN ───
+        if args.timeline:
+            render_timeline(print_cli=True, save=False)
+            return
+
+        
+
+        # Phase 2 – chat metrics
         compute_messages_per_second(logger)
         compute_rolling_baseline(logger)
         detect_chat_spikes(logger)
