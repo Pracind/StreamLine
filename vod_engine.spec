@@ -22,6 +22,13 @@ hiddenimports = [
     "torch.backends",
 ]
 
+hiddenimports += [
+    "PySide6",
+    "PySide6.QtCore",
+    "PySide6.QtGui",
+    "PySide6.QtWidgets",
+]
+
 # -------------------------------
 # Whisper Data files
 # -------------------------------
@@ -50,7 +57,7 @@ binaries = [
 # Analysis
 # -------------------------------
 a = Analysis(
-    [str(project_root / "src" / "app" / "ui.py")],
+    [str(project_root / "src" / "ui" / "main.py")],
     pathex=[str(project_root / "src")],
     binaries=binaries,
     datas=datas,
