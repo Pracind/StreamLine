@@ -1,24 +1,47 @@
 from pathlib import Path
 import shutil
 
+import infra.config as config
 from app.cli import run_pipeline
-from infra.config import INPUT_DIR, CHUNKS_DIR
+from infra.config import INPUT_DIR
 from pipeline.reset import reset_derived_state
 from infra.logger import setup_logger
 from infra.twitch import resolve_twitch_vod
 from ui.input_modes import InputMode
 
-def run_pipeline_from_ui(input_value, input_mode, progress_callback=None):
+
+def run_pipeline_from_ui(
+    input_value,
+    input_mode: InputMode,
+    chat_enabled: bool = True,
+    chat_weight: float = 1.0,
+    progress_callback=None,
+):
     logger = setup_logger()
 
+    # UI always starts fresh
     reset_derived_state(resume=False)
 
+    # ─────────────────────────────────────────────
+    # APPLY RUNTIME FLAGS
+    # ─────────────────────────────────────────────
+    config.ENABLE_CHAT_INFLUENCE = chat_enabled
+    logger.info(
+        "Chat influence %s via UI",
+        "ENABLED" if chat_enabled else "DISABLED",
+    )
+
+    # ─────────────────────────────────────────────
+    # Resolve input
+    # ─────────────────────────────────────────────
     if input_mode == InputMode.LOCAL:
         input_video = Path(input_value).resolve()
         if not input_video.exists():
             raise FileNotFoundError(input_video)
 
         INPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+        # Clear previous inputs
         for f in INPUT_DIR.glob("*.mp4"):
             f.unlink()
 
@@ -38,9 +61,13 @@ def run_pipeline_from_ui(input_value, input_mode, progress_callback=None):
     else:
         raise ValueError(f"Unknown input mode: {input_mode}")
 
+    # ─────────────────────────────────────────────
+    # Run pipeline
+    # ─────────────────────────────────────────────
     run_pipeline(
         input_video=input_video,
         resume=False,
         logger=logger,
         progress_callback=progress_callback,
+        chat_weight=chat_weight,
     )

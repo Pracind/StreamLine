@@ -6,6 +6,10 @@ import sys
 # ─────────────────────────────────────────────
 
 ENABLE_CHAT_INFLUENCE = True
+
+CHAT_WEIGHT = 1.0 
+CHAT_BOOST_MAX = 0.25
+
 ENABLE_CHAT_ONLY_HIGHLIGHTS = False
 
 # Threshold for chat-only highlights
@@ -186,3 +190,8 @@ TEXT_STRONG_THRESHOLD = 0.2
 CHAT_SMOOTHING_WINDOW_SECONDS = 3
 
 TIMELINE_PATH = OUTPUT_DIR / "timeline.txt"
+
+
+#presets
+PRESETS_DIR = DATA_DIR / "presets"
+PRESETS_DIR.mkdir(parents=True, exist_ok=True)

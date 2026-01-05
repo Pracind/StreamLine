@@ -144,10 +144,10 @@
 
 ## Day 26 — UX & Controls
 
-- [ ] Toggle chat influence on/off
-- [ ] Adjust chat weight
-- [ ] Show why a clip was selected
-- [ ] Save/load scoring presets
+- [x] Toggle chat influence on/off
+- [x] Adjust chat weight
+- [x] Show why a clip was selected
+- [x] Save/load scoring presets
 
 ---
 

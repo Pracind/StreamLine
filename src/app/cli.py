@@ -6,6 +6,7 @@ import os
 import psutil
 
 from infra.config import INPUT_DIR, CHUNKS_DIR
+from infra import config
 
 from processing.video_chunker import chunk_video
 from processing.audio_extractor import extract_audio_from_chunks
@@ -43,6 +44,8 @@ from processing.chat.chat_alignment import align_chat_to_video
 from scoring.chat_boost import apply_chat_boost_to_chunks
 from highlights.false_positive_filter import filter_false_positive_highlights
 
+from scoring.presets import load_preset, save_preset
+
 from debug.timeline_cli import render_timeline
 
 TOTAL_STEPS = 14
@@ -79,6 +82,23 @@ def parse_args():
         action="store_true",
         help="Print debug timeline of chunk scores"
     )
+
+    parser.add_argument(
+        "--chat-weight",
+        type=float,
+        default=None,
+        help="Scale chat influence (0.0 = off, 1.0 = default)",
+    )
+
+    parser.add_argument(
+        "--no-chat",
+        action="store_true",
+        help="Disable chat-based scoring (Phase 2)"
+    )
+
+    parser.add_argument("--preset", type=str, help="Load scoring preset")
+    parser.add_argument("--save-preset", type=str, help="Save current scoring as preset")
+
     return parser.parse_args()
 
 
@@ -123,6 +143,7 @@ def run_pipeline(
     input_video: Path,
     resume: bool,
     logger,
+    chat_weight: float = 1.0,
     progress_callback=None,
 ):
     print(">>> RUN_PIPELINE ENTERED <<<", flush=True)
@@ -163,7 +184,7 @@ def run_pipeline(
 
     report("Computing final highlight scores")
     apply_final_scores_to_chunks()
-    apply_chat_boost_to_chunks(logger)
+    apply_chat_boost_to_chunks(logger, chat_weight)
     logger.info("STEP %d DONE: final scoring", step)
     step += 1
 
@@ -213,6 +234,14 @@ def main():
     args = parse_args()
     logger = setup_logger()
 
+    if args.preset:
+        load_preset(args.preset)
+        logger.info("Loaded preset: %s", args.preset)
+
+    if args.save_preset:
+        save_preset(args.save_preset)
+        logger.info("Saved preset: %s", args.save_preset)
+
     # ─── TIMELINE-ONLY MODE ─────────────────────
     if args.timeline and not args.twitch_vod and not args.input:
         render_timeline(print_cli=True, save=False)
@@ -220,9 +249,17 @@ def main():
 
     reset_derived_state(args.resume)
 
+    if args.no_chat:
+        config.ENABLE_CHAT_INFLUENCE = False
+        logger.info("Chat influence DISABLED via CLI flag")
+
     if not (args.input or args.twitch_vod):
         print("ERROR: one of --input or --twitch-vod is required")
         sys.exit(2)
+
+    if args.chat_weight is not None:
+        config.CHAT_WEIGHT = max(0.0, args.chat_weight)
+        logger.info("Chat weight set to %.2f via CLI", config.CHAT_WEIGHT)
 
     if args.twitch_vod:
         from infra.twitch import resolve_twitch_vod
