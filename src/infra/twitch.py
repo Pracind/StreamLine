@@ -17,6 +17,7 @@ from infra.config import (
     INPUT_DIR,
     TWITCH_CHAT_RAW_DIR,
     TWITCH_DOWNLOADER_PATH,
+    YT_DLP_PATH,
 )
 
 TWITCH_VOD_URL_RE = re.compile(r"(?:twitch\.tv/videos/)(\d+)")
@@ -57,23 +58,49 @@ def _extract_vod_id(vod_url: str) -> str:
 
 def _run_yt_dlp(args: list[str], logger) -> str:
     """
-    Runs yt-dlp and returns stdout.
-    Progress is streamed directly to console.
+    Runs yt-dlp and streams output to logger in real time.
+    Returns combined stdout.
     """
-    logger.info("Running yt-dlp")
+    logger.info("Running yt-dlp: %s", " ".join(args))
 
-    result = subprocess.run(
+    # Resolve executable explicitly
+    exe = args[0]
+
+    # If using bare "yt-dlp", ensure it exists
+    if exe.lower() == "yt-dlp":
+        import shutil
+        resolved = shutil.which("yt-dlp")
+        logger.info("Resolved yt-dlp path: %s", resolved)
+        if not resolved:
+            raise FileNotFoundError("yt-dlp not found on PATH inside EXE environment")
+        args = [resolved] + args[1:]
+
+    process = subprocess.Popen(
         args,
         stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
         text=True,
+        bufsize=1,
+        universal_newlines=True,
+        creationflags=subprocess.CREATE_NO_WINDOW,
     )
 
-    if result.returncode != 0:
-        logger.error(result.stderr)
+    output_lines = []
+
+    for line in process.stdout:
+        line = line.rstrip()
+        if line:
+            logger.info("[yt-dlp] %s", line)
+            output_lines.append(line)
+
+    process.wait()
+
+    logger.info("yt-dlp exited with code %d", process.returncode)
+
+    if process.returncode != 0:
         raise RuntimeError("yt-dlp failed")
 
-    return result.stdout
+    return "\n".join(output_lines)
 
 
 # ─────────────────────────────────────────────
@@ -105,7 +132,7 @@ def resolve_twitch_vod(vod_url: str, logger) -> TwitchVODMetadata:
         logger.info("Fetching Twitch VOD metadata")
         output = _run_yt_dlp(
             [
-                "yt-dlp",
+                str(YT_DLP_PATH),
                 "--dump-json",
                 "--skip-download",
                 vod_url,
@@ -123,7 +150,7 @@ def resolve_twitch_vod(vod_url: str, logger) -> TwitchVODMetadata:
         logger.info("Downloading Twitch VOD")
         _run_yt_dlp(
             [
-                "yt-dlp",
+                str(YT_DLP_PATH),
                 "-f",
                 "best[ext=mp4]/best",
                 "-o",
@@ -161,7 +188,7 @@ def resolve_twitch_vod(vod_url: str, logger) -> TwitchVODMetadata:
 
 def download_twitch_chat(vod_id: str, logger) -> Path:
     """
-    Downloads raw Twitch chat replay JSON.
+    Downloads raw Twitch chat replay JSON with real-time logging.
     """
 
     output_path = TWITCH_CHAT_RAW_DIR / f"{vod_id}.json"
@@ -172,6 +199,15 @@ def download_twitch_chat(vod_id: str, logger) -> Path:
 
     logger.info("Downloading Twitch chat replay")
 
+    # ─── Verify downloader exists ─────────────────────
+    logger.info("TwitchDownloader path: %s", TWITCH_DOWNLOADER_PATH)
+    logger.info("TwitchDownloader exists: %s", TWITCH_DOWNLOADER_PATH.exists())
+
+    if not TWITCH_DOWNLOADER_PATH.exists():
+        raise FileNotFoundError(
+            f"TwitchDownloaderCLI.exe not found at: {TWITCH_DOWNLOADER_PATH}"
+        )
+
     cmd = [
         str(TWITCH_DOWNLOADER_PATH),
         "-m", "ChatDownload",
@@ -179,15 +215,33 @@ def download_twitch_chat(vod_id: str, logger) -> Path:
         "--output", str(output_path),
     ]
 
-    result = subprocess.run(
+    logger.info("Running: %s", " ".join(cmd))
+
+    process = subprocess.Popen(
         cmd,
         stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
         text=True,
+        bufsize=1,
+        universal_newlines=True,
+        creationflags=subprocess.CREATE_NO_WINDOW,
     )
 
-    if result.returncode != 0:
-        logger.error(result.stderr)
+    for line in process.stdout:
+        line = line.rstrip()
+        if line:
+            logger.info("[TwitchDownloader] %s", line)
+
+    process.wait()
+
+    if process.returncode != 0:
+        logger.error("TwitchDownloader exited with code %d", process.returncode)
         raise RuntimeError("Failed to download Twitch chat replay")
 
+    if not output_path.exists():
+        raise RuntimeError(
+            "TwitchDownloader reported success, but no chat file was created"
+        )
+
+    logger.info("Chat replay downloaded: %s", output_path)
     return output_path

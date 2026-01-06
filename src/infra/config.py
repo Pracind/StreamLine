@@ -133,9 +133,8 @@ for directory in (
 ):
     directory.mkdir(parents=True, exist_ok=True)
 
-TWITCH_DOWNLOADER_PATH = Path(
-    r"C:\tools\TwitchDownloader\TwitchDownloaderCLI.exe"
-)
+TWITCH_DOWNLOADER_PATH = INTERNAL_DIR / "tools" / "TwitchDownloaderCLI.exe"
+YT_DLP_PATH = INTERNAL_DIR / "tools" / "yt-dlp.exe"
 
 
 # ─────────────────────────────────────────────
@@ -195,3 +194,5 @@ TIMELINE_PATH = OUTPUT_DIR / "timeline.txt"
 #presets
 PRESETS_DIR = DATA_DIR / "presets"
 PRESETS_DIR.mkdir(parents=True, exist_ok=True)
+
+

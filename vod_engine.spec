@@ -51,6 +51,8 @@ datas = [
 # -------------------------------
 binaries = [
     (str(project_root / "ffmpeg" / "bin" / "ffmpeg.exe"), "ffmpeg"),
+    (str(project_root / "tools" / "TwitchDownloaderCLI.exe"), "tools"),
+    (str(project_root / "tools" / "yt-dlp.exe"), "tools"),
 ]
 
 # -------------------------------
