@@ -1,6 +1,7 @@
 import json
 import subprocess
 from pathlib import Path
+import os
 
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QTableWidget,
@@ -78,9 +79,29 @@ class TimelineInspector(QWidget):
         if row < 0:
             return
 
-        clip = DATA_DIR / "output" / "clips" / f"highlight_{row:03d}.mp4"
-        if clip.exists():
-            subprocess.Popen([str(clip)], shell=True)
+        entry = self.timeline[row]
+
+        # Only open real highlights
+        if not entry.get("highlight", False):
+            self.detail.setText("❌ This row is not a highlight clip")
+            return
+
+        # Map timeline row → Nth highlight clip
+        clip_index = sum(
+            1 for e in self.timeline[:row]
+            if e.get("highlight", False)
+        )
+
+        clip = DATA_DIR / "output" / "clips" / f"highlight_{clip_index:03d}.mp4"
+
+        if not clip.exists():
+            self.detail.setText(f"❌ Clip not found:\n{clip}")
+            return
+
+        try:
+            os.startfile(str(clip))
+        except Exception as e:
+            self.detail.setText(f"❌ Failed to open clip:\n{e}")
 
     @staticmethod
     def _fmt(sec: int) -> str:
