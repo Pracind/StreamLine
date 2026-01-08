@@ -1,241 +1,237 @@
-# Phase 2 Scope & Assumptions — Stream Context Awareness
+# Phase 3 Scope & Assumptions — Creator Publishing & Editing Layer
 
-This document defines the **locked scope, assumptions, and success criteria** for Phase 2 of the VOD Highlight Engine.
+This document defines the **locked scope, assumptions, design constraints, and success criteria** for Phase 3 of the VOD Highlight Engine.
 
-Phase 2 exists to improve **highlight accuracy and confidence** by incorporating **stream-native social signals**, while preserving the deterministic, local-first architecture proven in Phase 1.
+Phase 3 exists to transform automatically generated highlights into **publish-ready content** inside the application, without requiring external video editors.
 
-Phase 2 builds on Phase 1.  
-Phase 1 functionality **must continue to work independently**.
+Phase 3 builds on Phases 1 and 2.  
+Phase 1 and Phase 2 functionality **must continue to work independently**.
 
-Any feature not explicitly listed here is **out of scope** for Phase 2.
+Any feature not explicitly listed here is **out of scope** for Phase 3.
 
 ---
 
-## 1. Phase 2 Goal
+## 1. Phase 3 Goal
 
-Enhance highlight detection by incorporating **viewer reaction signals**, specifically:
+Enable creators to go from:
 
-- Twitch chat activity
-- Emote usage
-- Chat keyword spikes
+> **VOD → Highlights → Platform-Ready Video**
 
-The system should more reliably identify:
-- hype moments
-- clutch plays
-- unexpected events
-- chaotic or viral moments
+inside a single local application, with minimal manual editing.
 
-without relying on cloud services, paid APIs, or machine learning models.
+Phase 3 focuses on:
+- editing highlight timelines
+- preparing content for social platforms
+- adding captions and branding
+- exporting final videos
+
+Phase 3 does **not** attempt to replace professional NLE software.
 
 ---
 
 ## 2. Core Principle
 
-> **Audio + speech detect excitement.  
-Chat confirms that excitement mattered to viewers.**
+> **Phases 1 and 2 decide *what* matters.  
+Phase 3 decides *how it is published*.**
 
-Chat signals do not replace Phase 1 signals — they **reinforce or suppress** them.
-
----
-
-## 3. Definition of a “Chat-Driven Signal”
-
-A chat-driven signal is any measurable pattern in viewer chat that correlates with excitement or importance.
-
-Phase 2 recognizes three chat signal categories.
+Phase 3 does not influence highlight detection logic.  
+It operates strictly on **already-selected highlights**.
 
 ---
 
-### 3.1 Chat Activity Spikes (Primary Chat Signal)
+## 3. Definition of “Creator Publishing”
 
-A chat activity spike occurs when:
+Creator publishing is defined as the ability to:
 
-- Messages-per-second exceeds a rolling baseline by a configurable multiplier, OR
-- Absolute message volume crosses a minimum threshold
+- review and edit automatically generated highlights
+- make lightweight, clip-level adjustments
+- apply standardized presentation layers
+- export in formats optimized for social platforms
 
-These spikes capture:
-- sudden excitement
-- surprise
-- large reactions to in-game events
-
-Small chats are handled differently than large chats (see assumptions).
+This is a **workflow acceleration layer**, not a creative editing environment.
 
 ---
 
-### 3.2 Emote Floods (Secondary Chat Signal)
+## 4. Editable Highlight Timeline
 
-An emote flood occurs when:
+Phase 3 introduces an **editable timeline** abstraction.
 
-- A high percentage of messages contain emotes, OR
-- The same emote is repeated frequently in a short window
+Supported operations:
 
-Examples:
-- Pog
-- PogChamp
-- LUL
-- KEKW
-- ResidentSleeper (negative signal)
+- Enable / disable individual highlight clips
+- Trim clip start and end boundaries
+- Reorder clips in final output
 
-Emotes are treated as **semantic intensity markers**, not language.
+Constraints:
 
----
+- No transitions
+- No keyframes
+- No multi-track video
+- No compositing of multiple video sources
 
-### 3.3 Chat Keyword & Phrase Triggers (Tertiary Chat Signal)
-
-Chat messages receive keyword-based boosts for phrases such as:
-
-- “OMG”
-- “NO WAY”
-- “CLIP IT”
-- “WHAT”
-- “INSANE”
-
-These keywords are **separate** from speech keywords and have independent configuration.
+Edits are **deterministic**, persisted to disk, and fully inspectable.
 
 ---
 
-## 4. Twitch VOD Assumptions
+## 5. Captioning Model
 
-Phase 2 supports **Twitch VODs only**.
+Phase 3 supports **auto-generated captions** based on existing speech transcripts.
 
 Assumptions:
-- VODs are processed offline (not live)
-- Chat replay is available
-- Chat timestamps can be aligned to VOD time
-- Moderate delay (chat lag) is expected and compensated for
 
-Multi-platform support is explicitly deferred.
+- Sentence-level captions only
+- Captions are burned into the video (no subtitle files in Phase 3)
+- Caption styling is limited to:
+  - font
+  - size
+  - position
+- Captions are optional and user-controlled
 
----
-
-## 5. Chat Data Handling
-
-- Chat logs are downloaded once per VOD
-- Chat is processed locally
-- No user accounts or OAuth persistence required
-- Usernames are not stored or surfaced
-- Only message text, timestamp, and emotes are retained
-
-Privacy-sensitive data is intentionally minimized.
+Captions are treated as a **presentation layer**, not a scoring signal.
 
 ---
 
-## 6. Time Alignment Model
+## 6. Platform Formatting & Aspect Ratios
 
-- Chat events are aligned to video time in seconds
-- A configurable offset is applied to account for stream delay
-- Alignment tolerance is explicitly defined (e.g. ±3 seconds)
+Phase 3 supports export to common social video formats:
 
-Perfect synchronization is **not required**, but gross misalignment is unacceptable.
+- 16:9 — YouTube
+- 9:16 — TikTok, YouTube Shorts, Instagram Reels
+- 1:1 — Instagram
 
----
+Assumptions:
 
-## 7. Phase 2 Scoring Model
-
-Phase 2 introduces a **third scoring channel**:
-
-```
-total_score =
--> (audio_score * A)
-
--> (text_score * B)
-
--> (chat_score * C)
-```
-
-
-Where:
-- `audio_score` comes from Phase 1
-- `text_score` comes from Phase 1
-- `chat_score` is derived from chat activity, emotes, and keywords
-
-Weights are configurable but default to conservative values.
-
-### Design Rules
-
-- Chat can **boost** or **dampen** a highlight
-- Chat alone may surface highlights, but only above a minimum confidence threshold
-- Phase 1 signals must still be sufficient to produce highlights without chat
+- Video reframing uses cropping or padding
+- No AI-based reframing or subject tracking
+- Safe zones for captions and branding are respected
+- Multiple formats may be exported from the same highlight set
 
 ---
 
-## 8. Highlight Refinement (Phase 2)
+## 7. Branding & Overlays
 
-Phase 2 may:
+Phase 3 supports lightweight branding:
 
-- Boost borderline highlights when chat confirms excitement
-- Suppress false positives when chat is silent
-- Merge highlights reinforced by sustained chat activity
+- Static logo overlays (PNG)
+- Simple text overlays (creator name, handle)
 
-Phase 1 refinement rules still apply:
-- minimum duration
-- merging windows
-- buffering
+Constraints:
 
-No visual effects or presentation changes are introduced.
-
----
-
-## 9. Output Definition (Phase 2)
-
-Phase 2 produces the **same output artifacts as Phase 1**:
-
-- A single stitched highlight video
-- Chronological order
+- No animations
 - No transitions
-- No overlays
+- No motion graphics
+- No per-frame effects
 
-Additional debug artifacts may be produced:
-- chat score timelines
-- scoring logs
-- inspection views
+Branding is optional, deterministic, and controlled through presets.
 
-These are for tuning and transparency, not end-user presentation.
+---
+
+## 8. Export Model
+
+Phase 3 introduces **export presets** that define:
+
+- platform format
+- aspect ratio
+- caption style
+- branding options
+- encoding settings
+
+Exports must be:
+
+- deterministic
+- reproducible
+- offline
+- free of proprietary formats
+
+Outputs are standard video files ready for upload.
+
+---
+
+## 9. Data Handling
+
+- All edits are stored locally
+- No cloud storage
+- No user accounts
+- No telemetry or analytics
+- No automatic uploading to platforms
+
+User content remains fully under local control.
 
 ---
 
 ## 10. Technical Assumptions
 
-- All processing remains local
+- CPU-only execution is acceptable
+- FFmpeg remains the encoding backend
+- Export runtime may increase vs Phase 2
 - No paid APIs
 - No cloud inference
-- CPU-only execution is acceptable
-- Runtime may increase vs Phase 1
-- Deterministic results are required
-- Rule-based logic only (no ML models)
+- No machine learning models
+- Deterministic outputs are required
 
 ---
 
-## 11. Explicitly Out of Scope (Phase 2)
+## 11. Explicitly Out of Scope (Phase 3)
 
-The following are intentionally excluded:
+The following features are intentionally excluded:
 
-- Live stream processing
-- YouTube VODs or chat
-- TikTok / Kick / YouTube Live
-- Vision or facecam analysis
-- Automatic clip ranking via ML
-- User accounts or personalization
-- Cloud sync or storage
-- Auto-uploading clips
-- Monetization features
+- Full multi-track timeline editing
+- Transitions, effects, or color grading
+- Motion graphics or animations
+- Keyframing
+- Live streaming support
+- Cloud rendering or cloud storage
+- Auto-uploading to platforms
+- Monetization or creator marketplaces
+- Vision / facecam analysis
+- ML-based clip ranking or editing
+- Collaboration or shared projects
 
-If a feature is not listed as in-scope, it does not exist in Phase 2.
+If a feature is not listed as in-scope, it does not exist in Phase 3.
 
 ---
 
 ## 12. Success Criteria (User-Level)
 
-Phase 2 is considered successful if:
+Phase 3 is considered successful if:
 
-> A streamer can process a Twitch VOD and receive highlight videos that more reliably reflect moments the audience actually reacted to, compared to Phase 1 alone.
+> A creator can take a Twitch VOD and publish a platform-ready highlight video directly from the application, with significantly less manual editing than traditional workflows.
 
-Improvements should be:
-- observable
-- explainable
-- repeatable
+Success must be:
 
-Perfection is not required.  
-Consistency and clarity are.
+- measurable (editing time reduced by **>50%**)
+- observable (clear workflow improvement)
+- explainable (no black-box behavior)
+- repeatable (deterministic exports)
+
+Creative perfection is not required.  
+Speed, clarity, and control are.
 
 ---
+
+## 13. Architectural Outcome
+
+After Phase 3, the system provides:
+
+- Highlight detection (Phase 1)
+- Stream context awareness (Phase 2)
+- Creator publishing & editing (Phase 3)
+
+Resulting in a complete, offline pipeline:
+
+**VOD → Highlights → Publish-Ready Video**
+
+inside a single application, without cloud dependencies or opaque automation.
+
+---
+
+## Notes
+
+Phase 3 deliberately avoids:
+- AI editing
+- automated ranking
+- creative effects
+
+These belong to future phases once user feedback and labeled data exist.
+
+Phase 3 is about **empowering creators to publish faster**, not replacing professional editors.
