@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "timeline": [
+    {
+      "id": "hl_0001",
+      "start_time": 123.45,
+      "end_time": 178.90,
+      "chunk_ids": ["chunk_12", "chunk_13"],
+      "enabled": true,
+      "trim_start_offset": 0.0,
+      "trim_end_offset": 0.0,
+      "order_index": 0
+    }
+  ]
+}
