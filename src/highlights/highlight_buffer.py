@@ -18,7 +18,13 @@ def add_buffers_to_highlights():
         raise RuntimeError("highlight_timeline.json not found")
 
     with open(TIMELINE_PATH, "r", encoding="utf-8") as f:
-        highlights = json.load(f)
+        data = json.load(f)
+
+    # Handle v2 timeline schema
+    if isinstance(data, dict) and "timeline" in data:
+        highlights = data["timeline"]
+    else:
+        highlights = data
 
     buffered = []
 

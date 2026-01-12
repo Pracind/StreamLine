@@ -153,22 +153,22 @@
 
 ## Day 27 — Stability & Long-VOD Testing
 
-- [ ] Test 1–4 hour Twitch VODs
-- [ ] Test small chats (<10 viewers)
-- [ ] Test medium chats (50–200 viewers)
-- [ ] Verify memory stability
-- [ ] Ensure acceptable runtime
+- [x] Test 1–4 hour Twitch VODs
+- [x] Test small chats (<10 viewers)
+- [x] Test medium chats (50–200 viewers)
+- [x] Verify memory stability
+- [x] Ensure acceptable runtime
 
 ---
 
 ## Phase 2 Exit Criteria
 
-- [ ] Chat spikes reliably correlate with hype moments
-- [ ] Fewer false positives than Phase 1
-- [ ] User can explain *why* a clip was chosen
-- [ ] Phase 1 pipeline works independently
-- [ ] No cloud dependencies
-- [ ] Deterministic, repeatable results
+- [x] Chat spikes reliably correlate with hype moments
+- [x] Fewer false positives than Phase 1
+- [x] User can explain *why* a clip was chosen
+- [x] Phase 1 pipeline works independently
+- [x] No cloud dependencies
+- [x] Deterministic, repeatable results
 
 ---
 

@@ -1,15 +1,16 @@
 import json
-import subprocess
-from pathlib import Path
 import os
+from pathlib import Path
+from functools import partial
 
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QTableWidget,
-    QTableWidgetItem, QPushButton, QLabel
+    QTableWidgetItem, QPushButton, QLabel, QCheckBox
 )
 from PySide6.QtCore import Qt
 
-from infra.config import OUTPUT_DIR, DATA_DIR
+from infra.config import DATA_DIR
+from highlights.highlight_merger import TIMELINE_PATH
 
 
 class TimelineInspector(QWidget):
@@ -18,12 +19,19 @@ class TimelineInspector(QWidget):
         self.setWindowTitle("Timeline Inspector")
         self.resize(900, 600)
 
-        timeline_path = OUTPUT_DIR / "timeline.json"
-        if not timeline_path.exists():
+        self.timeline_path = TIMELINE_PATH
+        if not self.timeline_path.exists():
             raise RuntimeError("timeline.json not found. Run pipeline first.")
 
-        self.timeline = json.loads(timeline_path.read_text())
+        raw = json.loads(self.timeline_path.read_text(encoding="utf-8"))
 
+        # Handle v2 timeline schema
+        if isinstance(raw, dict) and "timeline" in raw:
+            self.timeline = raw["timeline"]
+        else:
+            self.timeline = raw
+
+        # UI
         layout = QVBoxLayout(self)
 
         self.table = QTableWidget()
@@ -38,60 +46,68 @@ class TimelineInspector(QWidget):
 
         self.populate_table()
 
+    # ----------------------------
+    # Table
+    # ----------------------------
+
     def populate_table(self):
-        headers = ["#", "Time", "A", "T", "C", "F"]
+        self.table.clear()
+
+        headers = ["#", "Time", "Enabled"]
         self.table.setColumnCount(len(headers))
         self.table.setHorizontalHeaderLabels(headers)
         self.table.setRowCount(len(self.timeline))
 
         for row, entry in enumerate(self.timeline):
-            self.table.setItem(row, 0, QTableWidgetItem(str(row)))
-            self.table.setItem(
-                row, 1,
-                QTableWidgetItem(
-                    f'{self._fmt(entry["start_sec"])}–{self._fmt(entry["end_sec"])}'
-                )
-            )
-            self.table.setItem(row, 2, QTableWidgetItem(f'{entry["audio"]:.2f}'))
-            self.table.setItem(row, 3, QTableWidgetItem(f'{entry["text"]:.2f}'))
-            self.table.setItem(row, 4, QTableWidgetItem(f'+{entry["chat"]:.2f}'))
-            self.table.setItem(row, 5, QTableWidgetItem(f'{entry["final"]:.2f}'))
+            # Index
+            self.table.setItem(row, 0, QTableWidgetItem(str(row + 1)))
 
-            if entry["highlight"]:
-                for col in range(6):
-                    self.table.item(row, col).setBackground(Qt.yellow)
+            # Time range
+            time_item = QTableWidgetItem(
+                f'{self._fmt(entry["start_time"])}–{self._fmt(entry["end_time"])}'
+            )
+            self.table.setItem(row, 1, time_item)
+
+            # Enabled checkbox
+            enabled = entry.get("enabled", True)
+            checkbox = QCheckBox()
+            checkbox.setChecked(enabled)
+            checkbox.stateChanged.connect(
+                partial(self.on_enabled_toggled, row)
+            )
+            self.table.setCellWidget(row, 2, checkbox)
 
         self.table.selectionModel().selectionChanged.connect(
             self.on_row_selected
         )
 
+    # ----------------------------
+    # Row selection
+    # ----------------------------
+
     def on_row_selected(self):
         row = self.table.currentRow()
         if row < 0:
             return
-        entry = self.timeline[row]
-        self.detail.setText(
-            f"Reason: {entry.get('reason', '—')}"
-        )
+
+        self.detail.setText(f"Clip {row + 1}")
+
+    # ----------------------------
+    # Open clip
+    # ----------------------------
 
     def open_clip(self):
         row = self.table.currentRow()
         if row < 0:
             return
 
-        entry = self.timeline[row]
-
-        # Only open real highlights
-        if not entry.get("highlight", False):
-            self.detail.setText("❌ This row is not a highlight clip")
+        # UI is the source of truth
+        checkbox = self.table.cellWidget(row, 2)
+        if checkbox and not checkbox.isChecked():
+            self.detail.setText("⚠️ This clip is disabled")
             return
 
-        # Map timeline row → Nth highlight clip
-        clip_index = sum(
-            1 for e in self.timeline[:row]
-            if e.get("highlight", False)
-        )
-
+        clip_index = row
         clip = DATA_DIR / "output" / "clips" / f"highlight_{clip_index:03d}.mp4"
 
         if not clip.exists():
@@ -103,6 +119,43 @@ class TimelineInspector(QWidget):
         except Exception as e:
             self.detail.setText(f"❌ Failed to open clip:\n{e}")
 
+    # ----------------------------
+    # Checkbox handler
+    # ----------------------------
+
+    def on_enabled_toggled(self, row: int, state: int):
+        enabled = state == Qt.CheckState.Checked
+
+        # Update in-memory model
+        self.timeline[row]["enabled"] = enabled
+
+        # Persist
+        self.save_timeline()
+
+        # Keep row selected
+        self.table.setCurrentCell(row, 0)
+
+        self.detail.setText(f"Clip {row+1} {'ENABLED' if enabled else 'DISABLED'}")
+
+    # ----------------------------
+    # Persistence
+    # ----------------------------
+
+    def save_timeline(self):
+        obj = {
+            "schema_version": 2,
+            "timeline": self.timeline
+        }
+        self.timeline_path.write_text(
+            json.dumps(obj, indent=2),
+            encoding="utf-8"
+        )
+
+    # ----------------------------
+    # Helpers
+    # ----------------------------
+
     @staticmethod
-    def _fmt(sec: int) -> str:
-        return f"{sec // 60:02d}:{sec % 60:02d}"
+    def _fmt(sec: float) -> str:
+        total = int(sec)
+        return f"{total // 60:02d}:{total % 60:02d}"

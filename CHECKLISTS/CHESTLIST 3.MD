@@ -54,41 +54,41 @@ Creators should be able to:
 
 ## Day 1 — Scope Lock (No Code)
 
-- [ ] Define “editable timeline”:
-  - [ ] Enable/disable clips
-  - [ ] Start/end trimming
-  - [ ] Clip reordering
-- [ ] Lock non-goals:
-  - [ ] No transitions
-  - [ ] No multi-track video
-- [ ] Define UX surface:
-  - [ ] Table-based timeline editor
-- [ ] Update README assumptions
+- [x] Define “editable timeline”:
+  - [x] Enable/disable clips
+  - [x] Start/end trimming
+  - [x] Clip reordering
+- [x] Lock non-goals:
+  - [x] No transitions
+  - [x] No multi-track video
+- [x] Define UX surface:
+  - [x] Table-based timeline editor
+- [x] Update README assumptions
 
 ---
 
 ## Day 2 — Timeline Data Model (v2)
 
-- [ ] Version timeline schema
-- [ ] Add fields:
-  - [ ] `enabled: bool`
-  - [ ] `trim_start_offset`
-  - [ ] `trim_end_offset`
-  - [ ] `order_index`
-- [ ] Backward compatibility with Phase 2 timelines
-- [ ] Unit tests for load/save
+- [x] Version timeline schema
+- [x] Add fields:
+  - [x] `enabled: bool`
+  - [x] `trim_start_offset`
+  - [x] `trim_end_offset`
+  - [x] `order_index`
+- [x] Backward compatibility with Phase 2 timelines
+- [x] Unit tests for load/save
 
 ---
 
 ## Day 3 — Editable Timeline UI
 
-- [ ] Checkbox: enable/disable clip
+- [x] Checkbox: enable/disable clip
 - [ ] Editable trim fields
 - [ ] Reorder buttons (↑ / ↓)
 - [ ] Live validation:
   - [ ] No negative durations
   - [ ] Enforce minimum clip length
-- [ ] Persist edits to disk
+- [] Persist edits to disk
 
 ---
 
