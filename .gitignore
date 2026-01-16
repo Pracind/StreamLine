@@ -19,3 +19,5 @@ TIMELINE/
 /*.exe
 src/vod_engine.egg-info/
 ffmpeg/
+
+FILES.MD

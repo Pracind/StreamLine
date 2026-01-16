@@ -1,3 +1,11 @@
+"""
+CLI entry point for Streamline.
+
+This module wires together the entire VOD → scoring → highlights → encoding
+pipeline and exposes it via command-line flags. It is intentionally procedural
+and orchestration-focused: all domain logic lives in downstream modules.
+"""
+
 from pathlib import Path
 import sys
 import argparse
@@ -8,26 +16,39 @@ import psutil
 from infra.config import INPUT_DIR, CHUNKS_DIR
 from infra import config
 
+# ─── Core Processing Pipeline Imports ──────────────────────────────────────────
 from processing.video_chunker import chunk_video
 from processing.audio_extractor import extract_audio_from_chunks
 from processing.audio_rms import calculate_rms_energy, write_rms_to_metadata
 from processing.transcriber import transcribe_audio_chunks
+
+# ─── Scoring Imports ───────────────────────────────────────────────────────────
 from scoring.text_features import count_keyword_hits_per_chunk
 from scoring.score_merger import merge_text_scores_into_chunks
 from scoring.scoring import apply_final_scores_to_chunks
-from highlights.highlight_selector import flag_highlight_chunks
 from scoring.score_logger import log_scores_for_tuning
+from scoring.chat_boost import apply_chat_boost_to_chunks
+from scoring.presets import load_preset, save_preset
+
+# ─── Highlight Generation Imports ──────────────────────────────────────────────
+from highlights.highlight_selector import flag_highlight_chunks
 from highlights.highlight_merger import merge_adjacent_highlights
 from highlights.highlight_buffer import add_buffers_to_highlights
 from highlights.highlight_filter import filter_short_highlights
+from highlights.false_positive_filter import filter_false_positive_highlights
 from highlights.clip_extractor import extract_highlight_clips
 from highlights.clip_concatenator import concatenate_clips
+
+# ─── Output & Cleanup Imports ──────────────────────────────────────────────────
 from output.final_encoder import encode_final_video
-from pipeline.reset import reset_derived_state
-from infra.logger import setup_logger
 from output.cleanup import cleanup_temporary_files
 
-# Chat Processing Imports
+# ─── Pipeline Control & Debugging ──────────────────────────────────────────────
+from pipeline.reset import reset_derived_state
+from infra.logger import setup_logger
+from debug.timeline_cli import render_timeline
+
+# ─── Chat Processing Imports (Phase 2) ─────────────────────────────────────────
 from processing.chat.activity_metrics import compute_messages_per_second
 from processing.chat.baseline_metrics import compute_rolling_baseline
 from processing.chat.spike_detection import detect_chat_spikes
@@ -41,22 +62,27 @@ from processing.chat.chat_smoothing import smooth_chat_score
 from processing.chat.chat_export import export_final_chat_scores
 from processing.chat.chat_alignment import align_chat_to_video
 
-from scoring.chat_boost import apply_chat_boost_to_chunks
-from highlights.false_positive_filter import filter_false_positive_highlights
 
-from scoring.presets import load_preset, save_preset
-
-from debug.timeline_cli import render_timeline
-
+# Total number of logical pipeline steps, used for progress reporting
 TOTAL_STEPS = 14
 
 
-
 def parse_args():
+    """
+    Parse and validate CLI arguments.
+
+    This function defines all user-facing execution modes, including:
+    - Local file vs Twitch VOD input
+    - Resume / rebuild behavior
+    - Timeline-only debug rendering
+    - Chat influence configuration
+    - Scoring preset load/save
+    """
     parser = argparse.ArgumentParser(
         description="VOD-Engine — Generate highlights from a VOD"
     )
 
+    # Input source is mutually exclusive: local file OR Twitch VOD
     input_group = parser.add_mutually_exclusive_group()
 
     input_group.add_argument(
@@ -70,7 +96,7 @@ def parse_args():
         type=str,
         help="Twitch VOD URL"
     )
-    
+
     parser.add_argument(
         "--resume",
         action="store_true",
@@ -96,6 +122,12 @@ def parse_args():
         help="Disable chat-based scoring (Phase 2)"
     )
 
+    parser.add_argument(
+        "--rebuild",
+        action="store_true",
+        help="Rebuild final video from edited timeline without re-running analysis",
+    )
+
     parser.add_argument("--preset", type=str, help="Load scoring preset")
     parser.add_argument("--save-preset", type=str, help="Save current scoring as preset")
 
@@ -103,12 +135,24 @@ def parse_args():
 
 
 def log_memory(logger, label: str):
+    """
+    Log current process RSS memory usage for debugging and profiling.
+    """
     process = psutil.Process(os.getpid())
     mem_mb = process.memory_info().rss / (1024 * 1024)
     logger.info(f"Memory usage [{label}]: {mem_mb:.1f} MB")
 
 
 def get_input_video(cli_input: Path | None) -> Path:
+    """
+    Resolve and validate the input video path.
+
+    Priority:
+    1. Explicit --input path (must exist and be .mp4)
+    2. First .mp4 found in INPUT_DIR
+
+    Exits the process with a user-facing error message on failure.
+    """
     if cli_input:
         if not cli_input.exists():
             print(f"ERROR: Input file does not exist: {cli_input}")
@@ -136,8 +180,6 @@ def get_input_video(cli_input: Path | None) -> Path:
 
     return video_files[0]
 
-    
-
 
 def run_pipeline(
     input_video: Path,
@@ -146,13 +188,26 @@ def run_pipeline(
     chat_weight: float = 1.0,
     progress_callback=None,
 ):
+    """
+    Execute the full end-to-end Streamline pipeline.
+
+    This function is intentionally linear and imperative to make
+    execution order, side effects, and progress reporting explicit.
+    """
     print(">>> RUN_PIPELINE ENTERED <<<", flush=True)
     step = 1
 
     def report(message: str):
+        """
+        Emit progress updates to an optional UI callback.
+        """
         if progress_callback:
             progress_callback(step, TOTAL_STEPS, message)
 
+
+
+
+    # ─── Phase 1: Signal Extraction ────────────────────────────────────────────
     report("Chunking input video")
     chunks = chunk_video(str(input_video), logger)
     step += 1
@@ -172,6 +227,10 @@ def run_pipeline(
 
     logger.info(">>> AFTER TRANSCRIPTION — ENTERING SCORING <<<")
 
+
+
+
+    # ─── Phase 2: Scoring ──────────────────────────────────────────────────────
     report("Scoring text features")
     count_keyword_hits_per_chunk(logger)
     logger.info("STEP %d DONE: text features", step)
@@ -188,6 +247,10 @@ def run_pipeline(
     logger.info("STEP %d DONE: final scoring", step)
     step += 1
 
+
+
+
+    # ─── Phase 3: Highlight Selection & Refinement ─────────────────────────────
     report("Selecting highlight chunks")
     flag_highlight_chunks()
     logger.info("STEP %d DONE: selecting highlights", step)
@@ -214,6 +277,10 @@ def run_pipeline(
     logger.info("STEP %d DONE: filtering highlights", step)
     step += 1
 
+
+
+
+    # ─── Phase 4: Clip Extraction & Encoding ───────────────────────────────────
     report("Extracting highlight clips")
     extract_highlight_clips(input_video, logger, resume)
     step += 1
@@ -225,12 +292,31 @@ def run_pipeline(
     cleanup_temporary_files(logger)
 
 
-    
+def rebuild_from_timeline(input_video: Path, logger, resume=True):
+    """
+    Rebuild the final output video from an existing, possibly edited timeline.
 
+    This skips all analysis and scoring stages and only re-executes
+    clip extraction and encoding.
+    """
+    logger.info(">>> REBUILDING FROM TIMELINE <<<")
 
+    extract_highlight_clips(input_video, logger, resume)
+    concatenate_clips()
+    encode_final_video()
+
+    logger.info(">>> REBUILD COMPLETE <<<")
 
 
 def main():
+    """
+    Primary CLI entry point.
+
+    Responsible for:
+    - Argument parsing
+    - Environment setup
+    - Mode dispatch (timeline-only, rebuild, full pipeline)
+    """
     args = parse_args()
     logger = setup_logger()
 
@@ -242,7 +328,10 @@ def main():
         save_preset(args.save_preset)
         logger.info("Saved preset: %s", args.save_preset)
 
-    # ─── TIMELINE-ONLY MODE ─────────────────────
+
+
+
+    # ─── Timeline-Only Debug Mode ──────────────────────────────────────────────
     if args.timeline and not args.twitch_vod and not args.input:
         render_timeline(print_cli=True, save=False)
         return
@@ -261,19 +350,19 @@ def main():
         config.CHAT_WEIGHT = max(0.0, args.chat_weight)
         logger.info("Chat weight set to %.2f via CLI", config.CHAT_WEIGHT)
 
+
+
+
+    # ─── Twitch VOD Flow (includes chat processing) ────────────────────────────
     if args.twitch_vod:
         from infra.twitch import resolve_twitch_vod
         vod_meta = resolve_twitch_vod(args.twitch_vod, logger)
         input_video = vod_meta.local_video_path
 
-        # ─── TIMELINE VIEW FOR EXISTING RUN ───
         if args.timeline:
             render_timeline(print_cli=True, save=False)
             return
 
-        
-
-        # Phase 2 – chat metrics
         compute_messages_per_second(logger)
         compute_rolling_baseline(logger)
         detect_chat_spikes(logger)
@@ -287,8 +376,29 @@ def main():
         export_final_chat_scores(logger)
         align_chat_to_video(logger, vod_meta.duration_seconds)
 
-    else:
-        input_video = get_input_video(args.input)
+
+
+
+    # ─── Rebuild Mode ──────────────────────────────────────────────────────────
+    if args.rebuild:
+        if args.input:
+            input_video = get_input_video(args.input)
+        elif args.twitch_vod:
+            from infra.twitch import resolve_twitch_vod
+            vod_meta = resolve_twitch_vod(args.twitch_vod, logger)
+            input_video = vod_meta.local_video_path
+        else:
+            print("ERROR: --rebuild requires --input or --twitch-vod")
+            sys.exit(2)
+
+        rebuild_from_timeline(input_video, logger, resume=True)
+        return
+
+
+
+
+    # ─── Full Pipeline Execution ───────────────────────────────────────────────
+    input_video = get_input_video(args.input)
 
     try:
         run_pipeline(input_video, args.resume, logger)
@@ -296,8 +406,6 @@ def main():
         sys.exit(130)
     except Exception:
         sys.exit(1)
-    
-
 
 
 if __name__ == "__main__":

@@ -83,12 +83,12 @@ Creators should be able to:
 ## Day 3 — Editable Timeline UI
 
 - [x] Checkbox: enable/disable clip
-- [ ] Editable trim fields
-- [ ] Reorder buttons (↑ / ↓)
-- [ ] Live validation:
-  - [ ] No negative durations
-  - [ ] Enforce minimum clip length
-- [] Persist edits to disk
+- [x] Editable trim fields
+- [x] Reorder buttons (↑ / ↓)
+- [x] Live validation:
+  - [x] No negative durations
+  - [x] Enforce minimum clip length
+- [x] Persist edits to disk
 
 ---
 
