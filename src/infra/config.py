@@ -1,18 +1,33 @@
+"""
+Global configuration and filesystem layout for Streamline.
+
+This module centralizes:
+- Feature toggles and scoring thresholds
+- Environment detection (frozen vs source)
+- Directory structure creation
+- All tunable constants used across the pipeline
+
+It is intentionally import-safe and side-effectful only for directory creation.
+"""
+
 from pathlib import Path
 import sys
 
 # ─────────────────────────────────────────────
-# Feature Toggles (GLOBAL)
+# Feature Toggles (Global)
 # ─────────────────────────────────────────────
 
+# Enable or disable chat-based influence on scoring
 ENABLE_CHAT_INFLUENCE = True
 
-CHAT_WEIGHT = 1.0 
+# Global chat contribution scaling
+CHAT_WEIGHT = 1.0
 CHAT_BOOST_MAX = 0.25
 
+# Allow highlights driven purely by chat signals
 ENABLE_CHAT_ONLY_HIGHLIGHTS = False
 
-# Threshold for chat-only highlights
+# Thresholds for chat-only highlights
 CHAT_ONLY_THRESHOLD = 0.18
 CHAT_ONLY_MIN_SCORE = 0.35
 
@@ -21,6 +36,7 @@ CHAT_ONLY_MIN_SCORE = 0.35
 # Environment Detection
 # ─────────────────────────────────────────────
 
+# Indicates execution from a frozen binary (e.g., PyInstaller)
 IS_FROZEN = getattr(sys, "frozen", False)
 
 
@@ -28,6 +44,7 @@ IS_FROZEN = getattr(sys, "frozen", False)
 # Base Directories
 # ─────────────────────────────────────────────
 
+# Resolve base paths differently for frozen vs source execution
 if IS_FROZEN:
     BASE_DIR = Path(sys.executable).parent
     INTERNAL_DIR = Path(sys._MEIPASS)
@@ -37,7 +54,7 @@ else:
 
 
 # ─────────────────────────────────────────────
-# Static Assets (READ-ONLY)
+# Static Assets (Read-Only)
 # ─────────────────────────────────────────────
 
 ASSETS_DIR = INTERNAL_DIR / "assets"
@@ -60,6 +77,7 @@ TRANSCRIPTS_DIR = DATA_DIR / "transcripts"
 HIGHLIGHTS_DIR = DATA_DIR / "highlights"
 OUTPUT_DIR = DATA_DIR / "output"
 
+# Ensure required runtime directories exist
 for directory in (
     DATA_DIR,
     INPUT_DIR,
@@ -84,17 +102,17 @@ AUDIO_SAMPLE_RATE = 16000
 SPIKE_THRESHOLD = 1.5
 SILENCE_RMS_THRESHOLD = 1e-4
 
-# Whisper
+# Whisper transcription
 WHISPER_MODEL_NAME = "base"
 
-# Phase 1 scoring
+# Phase 1 scoring weights
 AUDIO_WEIGHT = 0.7
 TEXT_WEIGHT = 0.3
 
-# Highlight selection
+# Highlight selection threshold
 HIGHLIGHT_THRESHOLD = 0.65
 
-# Highlight refinement
+# Highlight refinement parameters
 MERGE_GAP_SECONDS = 5
 PRE_BUFFER_SECONDS = 5
 POST_BUFFER_SECONDS = 5
@@ -119,6 +137,7 @@ TWITCH_CHAT_USERLESS_DIR = TWITCH_CHAT_DIR / "normalized_text_userless"
 TWITCH_CHAT_EMOTES_DIR = TWITCH_CHAT_DIR / "emotes"
 TWITCH_CHAT_CLEAN_DIR = TWITCH_CHAT_DIR / "clean"
 
+# Ensure Twitch-related directories exist
 for directory in (
     TWITCH_DIR,
     TWITCH_VOD_DIR,
@@ -133,6 +152,7 @@ for directory in (
 ):
     directory.mkdir(parents=True, exist_ok=True)
 
+# External tooling paths (bundled with frozen builds)
 TWITCH_DOWNLOADER_PATH = INTERNAL_DIR / "tools" / "TwitchDownloaderCLI.exe"
 YT_DLP_PATH = INTERNAL_DIR / "tools" / "yt-dlp.exe"
 
@@ -144,6 +164,7 @@ YT_DLP_PATH = INTERNAL_DIR / "tools" / "yt-dlp.exe"
 CHAT_METRICS_DIR = DATA_DIR / "chat" / "metrics"
 CHAT_METRICS_DIR.mkdir(parents=True, exist_ok=True)
 
+# Time offset to align chat activity with video timestamps
 CHAT_TO_VIDEO_OFFSET_SECONDS = 5
 
 
@@ -188,11 +209,13 @@ TEXT_STRONG_THRESHOLD = 0.2
 # Chat score smoothing
 CHAT_SMOOTHING_WINDOW_SECONDS = 3
 
+# Default timeline output path
 TIMELINE_PATH = OUTPUT_DIR / "timeline.txt"
 
 
-#presets
+# ─────────────────────────────────────────────
+# Presets
+# ─────────────────────────────────────────────
+
 PRESETS_DIR = DATA_DIR / "presets"
 PRESETS_DIR.mkdir(parents=True, exist_ok=True)
-
-

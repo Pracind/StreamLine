@@ -63,5 +63,3 @@ def flag_highlight_chunks():
         )
 
         entry["is_highlight"] = is_phase1 or is_chat_boosted or is_chat_only
-
-        i

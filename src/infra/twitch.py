@@ -1,8 +1,21 @@
+"""
+Twitch VOD resolution, download, and chat replay ingestion.
+
+This module is responsible for:
+- Resolving a Twitch VOD URL to a concrete VOD ID
+- Fetching and caching VOD metadata
+- Downloading the VOD video file
+- Downloading, normalizing, and exporting chat replay data
+
+It serves as the Phase 2 entry point for Twitch-based processing.
+"""
+
 import json
 import re
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
+
 from processing.chat.timestamp_normalizer import normalize_chat_timestamps
 from processing.chat.text_normalizer import normalize_chat_text
 from processing.chat.username_stripper import strip_usernames
@@ -20,6 +33,7 @@ from infra.config import (
     YT_DLP_PATH,
 )
 
+# Regex for extracting numeric VOD IDs from Twitch VOD URLs
 TWITCH_VOD_URL_RE = re.compile(r"(?:twitch\.tv/videos/)(\d+)")
 
 
@@ -29,6 +43,9 @@ TWITCH_VOD_URL_RE = re.compile(r"(?:twitch\.tv/videos/)(\d+)")
 
 @dataclass
 class TwitchVODMetadata:
+    """
+    Canonical metadata returned after resolving a Twitch VOD.
+    """
     vod_id: str
     duration_seconds: int
     created_at: str
@@ -40,6 +57,9 @@ class TwitchVODMetadata:
 # ─────────────────────────────────────────────
 
 def _ensure_dirs():
+    """
+    Ensure all Twitch-related directories exist.
+    """
     for d in (
         TWITCH_DIR,
         TWITCH_VOD_DIR,
@@ -50,6 +70,12 @@ def _ensure_dirs():
 
 
 def _extract_vod_id(vod_url: str) -> str:
+    """
+    Extract the numeric VOD ID from a Twitch VOD URL.
+
+    Raises:
+        ValueError: If the URL does not match the expected Twitch format.
+    """
     match = TWITCH_VOD_URL_RE.search(vod_url)
     if not match:
         raise ValueError("Invalid Twitch VOD URL")
@@ -58,15 +84,22 @@ def _extract_vod_id(vod_url: str) -> str:
 
 def _run_yt_dlp(args: list[str], logger) -> str:
     """
-    Runs yt-dlp and streams output to logger in real time.
-    Returns combined stdout.
+    Run yt-dlp with real-time logging and capture combined stdout.
+
+    This helper:
+    - Resolves yt-dlp explicitly when invoked by name
+    - Streams output lines directly into the application logger
+    - Raises on non-zero exit codes
+
+    Returns:
+        Combined stdout output as a single string.
     """
     logger.info("Running yt-dlp: %s", " ".join(args))
 
     # Resolve executable explicitly
     exe = args[0]
 
-    # If using bare "yt-dlp", ensure it exists
+    # If using bare "yt-dlp", ensure it exists on PATH
     if exe.lower() == "yt-dlp":
         import shutil
         resolved = shutil.which("yt-dlp")
@@ -109,13 +142,19 @@ def _run_yt_dlp(args: list[str], logger) -> str:
 
 def resolve_twitch_vod(vod_url: str, logger) -> TwitchVODMetadata:
     """
-    Phase 2 – Day 16
-    - Resolve Twitch VOD
-    - Fetch metadata
-    - Download video
-    - Download chat replay
-    """
+    Resolve a Twitch VOD URL and prepare it for pipeline processing.
 
+    Responsibilities:
+    - Resolve VOD ID from URL
+    - Fetch and cache metadata
+    - Download the VOD video if needed
+    - Copy the video into INPUT_DIR for downstream processing
+    - Download and normalize Twitch chat replay
+    - Export the final canonical chat dataset
+
+    Returns:
+        TwitchVODMetadata describing the resolved VOD.
+    """
     _ensure_dirs()
 
     vod_id = _extract_vod_id(vod_url)
@@ -167,7 +206,7 @@ def resolve_twitch_vod(vod_url: str, logger) -> TwitchVODMetadata:
     if not input_video_path.exists():
         input_video_path.write_bytes(video_path.read_bytes())
 
-    # ─── Download chat replay ─────────────────
+    # ─── Download and normalize chat replay ───
     download_twitch_chat(vod_id, logger)
     normalize_chat_timestamps(vod_id, logger)
     normalize_chat_text(vod_id, logger)
@@ -175,7 +214,7 @@ def resolve_twitch_vod(vod_url: str, logger) -> TwitchVODMetadata:
     extract_emotes(vod_id, logger)
     filter_chat_messages(vod_id, logger)
 
-    # Final canonical export
+    # Final canonical chat export
     export_final_chat(vod_id, logger)
 
     return TwitchVODMetadata(
@@ -188,9 +227,14 @@ def resolve_twitch_vod(vod_url: str, logger) -> TwitchVODMetadata:
 
 def download_twitch_chat(vod_id: str, logger) -> Path:
     """
-    Downloads raw Twitch chat replay JSON with real-time logging.
-    """
+    Download the raw Twitch chat replay for a given VOD.
 
+    Uses TwitchDownloaderCLI to fetch chat messages and streams
+    progress output into the application logger.
+
+    Returns:
+        Path to the downloaded raw chat JSON file.
+    """
     output_path = TWITCH_CHAT_RAW_DIR / f"{vod_id}.json"
 
     if output_path.exists():
@@ -199,7 +243,7 @@ def download_twitch_chat(vod_id: str, logger) -> Path:
 
     logger.info("Downloading Twitch chat replay")
 
-    # ─── Verify downloader exists ─────────────────────
+    # Verify TwitchDownloader executable
     logger.info("TwitchDownloader path: %s", TWITCH_DOWNLOADER_PATH)
     logger.info("TwitchDownloader exists: %s", TWITCH_DOWNLOADER_PATH.exists())
 
