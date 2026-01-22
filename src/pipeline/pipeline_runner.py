@@ -1,3 +1,13 @@
+"""
+UI-facing pipeline orchestration.
+
+This module adapts the core CLI pipeline for interactive UI usage by:
+- Normalizing user input modes
+- Resetting state deterministically per run
+- Orchestrating optional chat processing
+- Forwarding progress updates back to the UI layer
+"""
+
 from pathlib import Path
 import shutil
 
@@ -8,7 +18,6 @@ from pipeline.reset import reset_derived_state
 from infra.logger import setup_logger
 from infra.twitch import resolve_twitch_vod
 from ui.input_modes import InputMode
-
 
 from processing.chat.activity_metrics import compute_messages_per_second
 from processing.chat.baseline_metrics import compute_rolling_baseline
@@ -31,13 +40,29 @@ def run_pipeline_from_ui(
     chat_weight: float = 1.0,
     progress_callback=None,
 ):
+    """
+    Execute the Streamline pipeline from a UI context.
+
+    This function:
+    - Interprets UI-provided input modes
+    - Resets all derived state for a clean run
+    - Optionally performs chat analysis for Twitch inputs
+    - Delegates execution to the core pipeline runner
+
+    Args:
+        input_value: Path, URL, or ID representing the selected input.
+        input_mode: Enum describing how to interpret input_value.
+        chat_enabled: Whether chat influence should be applied.
+        chat_weight: Scaling factor applied to chat-based scoring.
+        progress_callback: Optional UI callback for progress updates.
+    """
     logger = setup_logger()
 
-    # UI always starts fresh
+    # UI runs always start from a clean state
     reset_derived_state(resume=False)
 
     # ─────────────────────────────────────────────
-    # APPLY RUNTIME FLAGS
+    # Apply runtime feature flags
     # ─────────────────────────────────────────────
     config.ENABLE_CHAT_INFLUENCE = chat_enabled
     logger.info(
@@ -46,7 +71,7 @@ def run_pipeline_from_ui(
     )
 
     # ─────────────────────────────────────────────
-    # Resolve input
+    # Resolve input source
     # ─────────────────────────────────────────────
     if input_mode == InputMode.LOCAL:
         input_video = Path(input_value).resolve()
@@ -55,7 +80,7 @@ def run_pipeline_from_ui(
 
         INPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-        # Clear previous inputs
+        # Clear any previous staged inputs
         for f in INPUT_DIR.glob("*.mp4"):
             f.unlink()
 
@@ -106,7 +131,7 @@ def run_pipeline_from_ui(
         raise ValueError(f"Unknown input mode: {input_mode}")
 
     # ─────────────────────────────────────────────
-    # Run pipeline
+    # Execute core pipeline
     # ─────────────────────────────────────────────
     run_pipeline(
         input_video=input_video,
