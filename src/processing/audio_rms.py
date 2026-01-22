@@ -1,3 +1,11 @@
+"""
+Audio RMS analysis and normalization.
+
+This module computes RMS energy for chunked audio files, detects relative
+volume spikes, and normalizes audio-derived scores for use in highlight
+scoring.
+"""
+
 import json
 from pathlib import Path
 
@@ -8,6 +16,22 @@ from infra.config import AUDIO_DIR, CHUNKS_DIR, SPIKE_THRESHOLD, SILENCE_RMS_THR
 
 
 def calculate_rms_energy(logger, resume: bool):
+    """
+    Calculate RMS energy for each extracted audio chunk.
+
+    For each WAV file:
+    - Loads audio samples
+    - Converts multi-channel audio to mono
+    - Computes RMS energy
+    - Reuses existing RMS values when resume=True
+
+    Args:
+        logger: Logger instance for progress and error reporting.
+        resume: Whether to reuse previously computed RMS values.
+
+    Returns:
+        Dictionary mapping chunk stem → RMS value.
+    """
     audio_files = sorted(AUDIO_DIR.glob("chunk_*.wav"))
 
     if not audio_files:
@@ -30,7 +54,7 @@ def calculate_rms_energy(logger, resume: bool):
     for idx, audio_path in enumerate(audio_files, start=1):
         stem = audio_path.stem
 
-        # ✅ RESUME LOGIC
+        # Resume logic: reuse previously computed RMS values
         if resume and stem in existing_rms:
             logger.info(
                 f"RMS [{idx}/{total}] cache hit: {audio_path.name}"
@@ -45,6 +69,7 @@ def calculate_rms_energy(logger, resume: bool):
         try:
             audio_data, _ = sf.read(audio_path)
 
+            # Collapse multi-channel audio to mono
             if audio_data.ndim > 1:
                 audio_data = np.mean(audio_data, axis=1)
 
@@ -60,8 +85,15 @@ def calculate_rms_energy(logger, resume: bool):
     return rms_results
 
 
-
 def write_rms_to_metadata(rms_results):
+    """
+    Persist RMS results into chunk metadata and derive audio scores.
+
+    This function:
+    - Writes raw RMS values into chunks.json
+    - Detects volume spikes relative to median energy
+    - Normalizes audio scores into a 0–1 range
+    """
     metadata_path = CHUNKS_DIR / "chunks.json"
 
     if not metadata_path.exists():
@@ -81,8 +113,18 @@ def write_rms_to_metadata(rms_results):
         json.dump(metadata, f, indent=2)
 
 
-
 def detect_volume_spikes(metadata):
+    """
+    Identify volume spikes based on RMS energy relative to the median.
+
+    For each chunk:
+    - Flags silence below SILENCE_RMS_THRESHOLD
+    - Computes spike score as RMS / median RMS
+    - Flags volume spikes exceeding SPIKE_THRESHOLD
+
+    Returns:
+        Updated metadata list with audio spike annotations.
+    """
     rms_values = np.array(
         [entry.get("audio_rms", 0.0) for entry in metadata]
     )
@@ -92,6 +134,7 @@ def detect_volume_spikes(metadata):
 
     median_rms = np.median(rms_values)
 
+    # Prevent division by zero
     if median_rms == 0:
         median_rms = 1e-9
 
@@ -115,8 +158,13 @@ def detect_volume_spikes(metadata):
     return metadata
 
 
-
 def normalize_audio_scores(metadata):
+    """
+    Normalize audio spike scores into a 0–1 audio score range.
+
+    Silent chunks are always assigned a score of 0.0.
+    Non-silent chunks are linearly normalized based on observed min/max.
+    """
     # Collect spike scores for non-silent chunks
     spike_scores = [
         entry["audio_spike_score"]
