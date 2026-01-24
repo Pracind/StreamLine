@@ -1,3 +1,10 @@
+"""
+Audio transcription using OpenAI Whisper.
+
+This module transcribes each extracted audio chunk into text and segment-level
+metadata, persisting results to disk and optionally reusing cached outputs.
+"""
+
 import json
 from pathlib import Path
 
@@ -12,6 +19,21 @@ from infra.config import (
 
 
 def transcribe_audio_chunks(logger, resume: bool):
+    """
+    Transcribe all audio chunks using the configured Whisper model.
+
+    For each audio file:
+    - Loads or reuses a cached transcript when present
+    - Runs Whisper transcription otherwise
+    - Persists transcript output as JSON
+
+    Args:
+        logger: Logger instance for progress and error reporting.
+        resume: If True, reuse existing transcript files when available.
+
+    Returns:
+        Dictionary mapping chunk stem → transcript data.
+    """
     TRANSCRIPTS_DIR.mkdir(parents=True, exist_ok=True)
 
     if not resume:
@@ -36,7 +58,7 @@ def transcribe_audio_chunks(logger, resume: bool):
     for idx, audio_path in enumerate(audio_files, start=1):
         transcript_path = TRANSCRIPTS_DIR / f"{audio_path.stem}.json"
 
-        # Cache hit
+        # Cache hit: reuse existing transcript
         if transcript_path.exists():
             logger.info(
                 f"Whisper [{idx}/{total}] cache hit: {audio_path.name}"
@@ -78,8 +100,12 @@ def transcribe_audio_chunks(logger, resume: bool):
     return results
 
 
-
-
 def clear_existing_transcripts():
+    """
+    Remove previously generated transcript files.
+
+    This is used when resume mode is disabled to force a clean
+    re-transcription of all audio chunks.
+    """
     for file in TRANSCRIPTS_DIR.glob("chunk_*.json"):
         file.unlink()

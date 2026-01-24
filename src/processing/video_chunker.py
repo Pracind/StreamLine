@@ -1,3 +1,10 @@
+"""
+Video chunking utilities.
+
+This module splits an input video into fixed-duration segments using FFmpeg
+and generates corresponding chunk metadata for downstream processing.
+"""
+
 import subprocess
 import json
 from pathlib import Path
@@ -6,10 +13,26 @@ from infra.config import CHUNK_DURATION_SECONDS, CHUNKS_DIR
 
 
 def chunk_video(input_video_path: str, logger):
+    """
+    Split the input video into fixed-duration chunks.
+
+    This function:
+    - Uses FFmpeg segmenting to copy video streams without re-encoding
+    - Skips chunking if chunk files and metadata already exist
+    - Generates chunk-level metadata including timing information
+
+    Args:
+        input_video_path: Path to the input video file as a string.
+        logger: Logger instance for progress and error reporting.
+
+    Returns:
+        List of chunk metadata dictionaries.
+    """
     logger.info(f"Starting video chunking: {input_video_path}")
 
     metadata_path = CHUNKS_DIR / "chunks.json"
 
+    # Fast-path: reuse existing chunks and metadata if present
     if metadata_path.exists():
         existing_chunks = list(CHUNKS_DIR.glob("chunk_*.mp4"))
         if existing_chunks:
@@ -20,6 +43,7 @@ def chunk_video(input_video_path: str, logger):
     CHUNKS_DIR.mkdir(parents=True, exist_ok=True)
     clear_existing_chunks()
 
+    # Output filename pattern for FFmpeg segmenter
     chunk_pattern = str(CHUNKS_DIR / "chunk_%04d.mp4")
 
     command = [
@@ -51,6 +75,7 @@ def chunk_video(input_video_path: str, logger):
     metadata = []
 
     for idx, chunk_file in enumerate(chunk_files):
+        # Derive chunk time boundaries from index and fixed duration
         start_time = idx * CHUNK_DURATION_SECONDS
         end_time = start_time + CHUNK_DURATION_SECONDS
 
@@ -75,5 +100,11 @@ def chunk_video(input_video_path: str, logger):
 
 
 def clear_existing_chunks():
+    """
+    Remove previously generated video chunk files.
+
+    This is used to ensure a clean re-chunking when existing artifacts
+    should not be reused.
+    """
     for file in CHUNKS_DIR.glob("chunk_*.mp4"):
         file.unlink()
