@@ -1,13 +1,35 @@
+"""
+Merge text-derived scores into chunk metadata.
+
+This module joins per-chunk text feature scores with the primary
+chunk metadata to prepare for final scoring.
+"""
+
 import json
 from pathlib import Path
 
 from infra.config import CHUNKS_DIR, DATA_DIR
 
 
+# Path to persisted text feature scores
 TEXT_FEATURES_PATH = DATA_DIR / "text_features.json"
 
 
 def merge_text_scores_into_chunks():
+    """
+    Attach text scores to corresponding chunk entries.
+
+    For each chunk:
+    - Looks up text-derived features using the chunk filename stem
+    - Writes a `text_score` field into chunk metadata
+    - Defaults to 0.0 when no text features are available
+
+    Returns:
+        Updated list of chunk metadata dictionaries.
+
+    Raises:
+        RuntimeError: If required metadata files are missing.
+    """
     chunks_path = CHUNKS_DIR / "chunks.json"
 
     if not chunks_path.exists():

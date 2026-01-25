@@ -1,8 +1,26 @@
+"""
+Scoring preset persistence utilities.
+
+This module allows saving and loading groups of scoring-related
+configuration values as named presets, enabling reproducible
+tuning and experimentation.
+"""
+
 import json
 from infra.config import PRESETS_DIR
 import infra.config as config
 
+
 def save_preset(name: str):
+    """
+    Save the current scoring configuration as a named preset.
+
+    The preset captures a snapshot of relevant runtime configuration
+    values and persists them as a JSON file under the presets directory.
+
+    Args:
+        name: Name of the preset (used as the filename).
+    """
     preset = {
         "name": name,
         "version": 1,
@@ -25,13 +43,28 @@ def save_preset(name: str):
 
 
 def load_preset(name: str):
+    """
+    Load a named scoring preset and apply it to the runtime configuration.
+
+    This function mutates global configuration values in infra.config
+    to match those stored in the preset.
+
+    Args:
+        name: Name of the preset to load (without file extension).
+
+    Returns:
+        The loaded preset dictionary.
+
+    Raises:
+        FileNotFoundError: If the requested preset does not exist.
+    """
     path = PRESETS_DIR / f"{name}.json"
     if not path.exists():
         raise FileNotFoundError(path)
 
     preset = json.loads(path.read_text())
 
-    # Apply to runtime config
+    # Apply preset values to runtime configuration
     config.ENABLE_CHAT_INFLUENCE = preset["enable_chat_influence"]
     config.CHAT_WEIGHT = preset["chat_weight"]
 
