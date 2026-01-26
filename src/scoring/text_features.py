@@ -1,11 +1,31 @@
+"""
+Text feature extraction and scoring.
+
+This module analyzes transcript text to:
+- Count keyword occurrences by category
+- Compute simple sentiment signals
+- Normalize text-derived scores for use in phase-1 scoring
+"""
+
 import json
 from infra.logger import setup_logger
 from infra.config import KEYWORDS_PATH, TRANSCRIPTS_DIR, DATA_DIR
 
+
+# Output path for aggregated text features
 TEXT_FEATURES_PATH = DATA_DIR / "text_features.json"
 
 
 def load_keywords():
+    """
+    Load keyword configuration from disk.
+
+    Returns:
+        Dictionary mapping categories to keyword lists.
+
+    Raises:
+        RuntimeError: If the keyword configuration file is missing.
+    """
     if not KEYWORDS_PATH.exists():
         raise RuntimeError(f"keywords.json not found at {KEYWORDS_PATH}")
 
@@ -14,6 +34,16 @@ def load_keywords():
 
 
 def count_keywords_in_text(text, keywords_by_category):
+    """
+    Count keyword phrase occurrences in a block of text.
+
+    Args:
+        text: Input transcript text.
+        keywords_by_category: Mapping of category → list of phrases.
+
+    Returns:
+        Dictionary mapping category → occurrence count.
+    """
     text_lower = text.lower()
     counts = {}
 
@@ -27,6 +57,22 @@ def count_keywords_in_text(text, keywords_by_category):
 
 
 def count_keyword_hits_per_chunk(logger=None):
+    """
+    Compute text-derived features for each transcript chunk.
+
+    This function:
+    - Loads keyword and sentiment configuration
+    - Processes each transcript file independently
+    - Computes raw keyword and sentiment scores
+    - Normalizes scores across all chunks
+    - Persists results to disk
+
+    Args:
+        logger: Optional logger; a UI-safe logger is created if omitted.
+
+    Returns:
+        Dictionary mapping chunk stem → text feature data.
+    """
     if logger is None:
         logger = setup_logger(ui_mode=True)
 
@@ -84,6 +130,12 @@ def count_keyword_hits_per_chunk(logger=None):
 
 
 def compute_sentiment(text, sentiment_config):
+    """
+    Compute a simple sentiment signal from text.
+
+    Sentiment is derived by counting positive and negative phrase hits
+    and computing their difference.
+    """
     text_lower = text.lower()
 
     positive = sentiment_config.get("positive", [])
@@ -100,6 +152,12 @@ def compute_sentiment(text, sentiment_config):
 
 
 def normalize_text_scores(all_features):
+    """
+    Normalize raw text scores into a 0–1 range across all chunks.
+
+    Normalization is linear and based on observed minimum and maximum
+    raw text scores.
+    """
     raw_scores = [data["raw_text_score"] for data in all_features.values()]
 
     if not raw_scores:
